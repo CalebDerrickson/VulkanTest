@@ -280,42 +280,33 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwi
 	return actualExtent;
 }
 
-static std::vector<char> readFile(const std::string& fileName) 
+static std::vector<char> readFile(const std::string& filename)
 {
-
-	std::ifstream file(fileName, std::ios::ate, std::ios::binary);
+	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
 	if (!file.is_open()) {
-		throw std::runtime_error("failed to open file " + fileName + "!");
+		throw std::runtime_error("failed to open file " + filename + "!");
 	}
 
 	size_t fileSize = (size_t)file.tellg();
-	std::vector<char>buffer(fileSize);
+	std::vector<char> buffer(fileSize);
+
 	file.seekg(0);
 	file.read(buffer.data(), fileSize);
 
 	file.close();
+
 	return buffer;
-	
 }
 
-VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice device)
+VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice& device)
 {
-
-	VkShaderModuleCreateInfo createInfo{};
+	VkShaderModuleCreateInfo createInfo {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize = code.size();
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 	VkShaderModule shaderModule;
-
-	// Error Line 319
-	//validation layer : Validation Error : [VUID - VkShaderModuleCreateInfo - pCode - 01379] 
-	//Object 0 : handle = 0x1f7c805e430, type = VK_OBJECT_TYPE_DEVICE; | MessageID = 0x2a1bf17f | 
-	//SPIR - V module not valid: Error: Result Id is 0 The Vulkan spec states : If pCode is a pointer 
-	//to GLSL code, it must be valid GLSL code written to the GL_KHR_vulkan_glsl GLSL extension specification
-	//(https ://vulkan.lunarg.com/doc/view/1.3.250.1/windows/1.3-extensions/vkspec.html#VUID-VkShaderModuleCreateInfo-pCode-01379)
-	
 	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create shader module!");
 	}
