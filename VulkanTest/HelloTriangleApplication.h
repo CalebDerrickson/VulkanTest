@@ -85,8 +85,12 @@ private: // Private Functions
 
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
+    void createSyncObjects();
+
     // Main Loop of the Program
     void mainLoop();
+
+    void drawFrame();
 
     // Memory Release 
     void cleanup();
@@ -114,6 +118,9 @@ private: // Private Values
     std::vector<VkFramebuffer> _swapChainFramebuffers;
     VkCommandPool _commandPool;
     VkCommandBuffer _commandBuffer;
+    VkSemaphore _imageAvailableSemaphore;
+    VkSemaphore _renderFinishedSemaphore;
+    VkFence _inFlightFence;
 
 };
 
