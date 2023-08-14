@@ -149,8 +149,14 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommonUtils.h" />
+    <ClInclude Include="DebugUtils.h" />
+    <ClInclude Include="DeviceUtils.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
-    <ClInclude Include="Utils.h" />
+    <ClInclude Include="InstanceUtils.h" />
+    <ClInclude Include="ShaderUtils.h" />
+    <ClInclude Include="SwapChainUtils.h" />
+    <ClInclude Include="MainUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

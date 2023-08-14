@@ -21,11 +21,7 @@ const uint32_t WINDOW_HEIGHT = 600;
 
 
 
-#ifdef NDEBUG 
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
+
 
 class HelloTriangleApplication {
 public:
