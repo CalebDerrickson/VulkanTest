@@ -79,6 +79,12 @@ private: // Private Functions
 
     void createFramebuffers();
 
+    void createCommandPool();
+
+    void createCommandBuffer();
+
+    void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
     // Main Loop of the Program
     void mainLoop();
 
@@ -106,6 +112,9 @@ private: // Private Values
     VkPipelineLayout _pipelineLayout;
     VkPipeline _graphicsPipeline;
     std::vector<VkFramebuffer> _swapChainFramebuffers;
+    VkCommandPool _commandPool;
+    VkCommandBuffer _commandBuffer;
+
 };
 
 
