@@ -33,6 +33,7 @@ void HelloTriangleApplication::initVulkan()
 	createLogicalDevice();
 	createSwapChain();
 	createImageViews();
+	createRenderPass();
 	createGraphicsPipeline();
 
 }
@@ -298,6 +299,39 @@ void HelloTriangleApplication::createImageViews()
 	}
 }
 
+void HelloTriangleApplication::createRenderPass()
+{
+
+	VkAttachmentDescription colorAttachment{};
+	colorAttachment.format = _swapChainImageFormat;
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT; //not doing anything with multisampling yet
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	VkAttachmentReference colorAttachmentRef{};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass{};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+
+	VkRenderPassCreateInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = 1;
+	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+
+	if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create render pass!");
+	}
+}
 
 void HelloTriangleApplication::createGraphicsPipeline()
 {
@@ -320,6 +354,11 @@ void HelloTriangleApplication::createGraphicsPipeline()
 	fragShaderStageInfo.pName = "main";
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+	//Filling in the VkPipelineVertexInput structure. It describes the format of the 
+	//vertex data that will be passed to the vertex shader
+	//We're hard coding vertex data directly in the vertex shader, so we'll specify 
+	//that there is novertex data to load for now
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -376,6 +415,8 @@ void HelloTriangleApplication::createGraphicsPipeline()
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
+
+
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 0;
@@ -403,6 +444,8 @@ void HelloTriangleApplication::mainLoop()
 void HelloTriangleApplication::cleanup() 
 {
 	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+
+	vkDestroyRenderPass(_device, _renderPass, nullptr);
 
 	for (auto imageView : _swapChainImageViews) {
 		vkDestroyImageView(_device, imageView, nullptr);

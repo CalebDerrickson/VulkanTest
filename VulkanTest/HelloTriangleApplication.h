@@ -68,6 +68,12 @@ private: // Private Functions
 
     void createImageViews();
 
+    // Description of the number of framebuffer attachments we will be rendering.
+    // Ie, we need to specify how many color and depth buffers there will be,
+    // how many samples to use for each of them, 
+    // and how their contents should be handled throughout the rendering operations.
+
+    void createRenderPass();
 
     void createGraphicsPipeline();
 
@@ -94,6 +100,7 @@ private: // Private Values
     VkFormat _swapChainImageFormat;
     VkExtent2D _swapChainExtent;
     std::vector<VkImageView> _swapChainImageViews;
+    VkRenderPass _renderPass;
     VkPipelineLayout _pipelineLayout;
 };
 
