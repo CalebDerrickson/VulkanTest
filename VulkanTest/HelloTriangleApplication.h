@@ -77,6 +77,8 @@ private: // Private Functions
 
     void createGraphicsPipeline();
 
+    void createFramebuffers();
+
     // Main Loop of the Program
     void mainLoop();
 
@@ -103,6 +105,7 @@ private: // Private Values
     VkRenderPass _renderPass;
     VkPipelineLayout _pipelineLayout;
     VkPipeline _graphicsPipeline;
+    std::vector<VkFramebuffer> _swapChainFramebuffers;
 };
 
 
