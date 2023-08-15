@@ -1,7 +1,6 @@
 #include "BaseApp.h"
 
-#include "Utils.h"
-
+#include "MainUtils.h"
 
 void BaseApp::initWindow()
 {
@@ -51,14 +50,13 @@ void BaseApp::initVulkan()
 void BaseApp::createInstance()
 {
 	// First checks for available validation layers
-	if (enableValidationLayers && !checkValidationLayerSupport()) {
+	if (enableValidationLayers && !InstanceUtils::checkValidationLayerSupport()) {
 		throw std::runtime_error("Validation layers requested, but not available!");
 	}
 
 
 	// Informs the driver about our application for optimization
 	VkApplicationInfo appInfo{};
-
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Hello Triangle";
 	appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
@@ -69,16 +67,15 @@ void BaseApp::createInstance()
 
 	// Tells the Vulkan driver which global extensions and validation layers to use
 	VkInstanceCreateInfo createInfo{};
-
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
 
 
 	// Specifies the extensions we need to use
-	std::vector<const char*> extensions = getRequiredExtensions();
-
+	std::vector<const char*> extensions = InstanceUtils::getRequiredExtensions();
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 	createInfo.ppEnabledExtensionNames = extensions.data();
+
 
 	// Enable global validation layers if available
 	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
@@ -86,8 +83,14 @@ void BaseApp::createInstance()
 
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
-
-		populateDebugMessengerCreateInfo(debugCreateInfo);
+		debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT 
+			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT 
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT 
+			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		debugCreateInfo.pfnUserCallback = DebugUtils::debugCallback;
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 
 	}
@@ -98,15 +101,8 @@ void BaseApp::createInstance()
 	}
 
 	// Creates the instance
-	VkResult result{};
-	result = vkCreateInstance(
-		&createInfo, // Creation Information pointer
-		nullptr,     // Allocator Callbacks pointer
-		&_instance   // Instance pointer
-	);
-
-	if (result != VK_SUCCESS) {
-		std::cout << result << "\n";
+	
+	if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create instance!");
 	}
 
@@ -115,13 +111,15 @@ void BaseApp::createInstance()
 void BaseApp::createSurface()
 {
 
+	// App can only be used on Windows 
+	// TODO : Query for device architecture
+	// and modify as such
 	VkWin32SurfaceCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = glfwGetWin32Window(_window);
 	createInfo.hinstance = GetModuleHandle(nullptr);
 
-	VkResult res = glfwCreateWindowSurface(_instance, _window, nullptr, &_surface);
-	if (res != VK_SUCCESS) {
+	if (glfwCreateWindowSurface(_instance, _window, nullptr, &_surface) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create window surface!");
 	}
 
@@ -134,9 +132,12 @@ void BaseApp::setupDebugMessenger()
 	if (!enableValidationLayers) return;
 
 	VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-	populateDebugMessengerCreateInfo(createInfo);
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = DebugUtils::debugCallback;
 
-	if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+	if (DebugUtils::CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
 		throw std::runtime_error("failed to set up debug messenger!");
 	}
 }
@@ -157,7 +158,7 @@ void BaseApp::pickPhysicalDevice()
 	vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
 
 	for (const VkPhysicalDevice device : devices) {
-		if (isDeviceSuitable(device, _surface)) {
+		if (DeviceUtils::isDeviceSuitable(device, _surface)) {
 			_physicalDevice = device;
 			break;
 		}
@@ -171,7 +172,7 @@ void BaseApp::pickPhysicalDevice()
 void BaseApp::createLogicalDevice()
 {
 
-	QueueFamilyIndices indices = findQueueFamilies(_physicalDevice, _surface);
+	CommonUtils::QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
 	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
@@ -219,11 +220,11 @@ void BaseApp::createLogicalDevice()
 void BaseApp::createSwapChain()
 {
 
-	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(_physicalDevice, _surface);
+	SwapChainUtils::SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDevice, _surface);
 
-	VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-	VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-	VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, _window);
+	VkSurfaceFormatKHR surfaceFormat = SwapChainUtils::chooseSwapSurfaceFormat(swapChainSupport.formats);
+	VkPresentModeKHR presentMode = SwapChainUtils::chooseSwapPresentMode(swapChainSupport.presentModes);
+	VkExtent2D extent = SwapChainUtils::chooseSwapExtent(swapChainSupport.capabilities, _window);
 
 	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
@@ -242,7 +243,7 @@ void BaseApp::createSwapChain()
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	QueueFamilyIndices indices = findQueueFamilies(_physicalDevice, _surface);
+	CommonUtils::QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -357,11 +358,11 @@ void BaseApp::createRenderPass()
 
 void BaseApp::createGraphicsPipeline()
 {
-	auto vertShaderCode = readFile("shaders/vert.spv");
-	auto fragShaderCode = readFile("shaders/frag.spv");
+	auto vertShaderCode = CommonUtils::readFile("shaders/vert.spv");
+	auto fragShaderCode = CommonUtils::readFile("shaders/frag.spv");
 
-	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode, _device);
-	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, _device);
+	VkShaderModule vertShaderModule = ShaderUtils::createShaderModule(vertShaderCode, _device);
+	VkShaderModule fragShaderModule = ShaderUtils::createShaderModule(fragShaderCode, _device);
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -504,7 +505,7 @@ void BaseApp::createFramebuffers()
 void BaseApp::createCommandPool()
 {
 
-	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice, _surface);
+	CommonUtils::QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -635,7 +636,7 @@ void BaseApp::cleanup()
 	vkDestroyDevice(_device, nullptr);
 
 	if (enableValidationLayers) {
-		DestroyDebugUtilsMessengerEXT(_instance, debugMessenger, nullptr);
+		DebugUtils::DestroyDebugUtilsMessengerEXT(_instance, debugMessenger, nullptr);
 	}
 
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);

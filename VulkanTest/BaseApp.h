@@ -14,16 +14,18 @@
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
 
-#ifdef NDEBUG 
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-
+/// <summary>
+/// The BaseApp class provides the "bare-bones" initilization and setup
+/// of an application using the Vulkan API. The expected use of this class 
+/// is to create an instance and invoke run().
+/// </summary>
 
 class BaseApp
 {
 public:
+    
+    BaseApp() = default;
+    ~BaseApp() = default;
     
     void run()
     {
@@ -38,19 +40,25 @@ protected:
     // Initializes the Main Window without a call to OpenGL
     virtual void initWindow();
 
-    // Initializes Vulkan
+    // Initializes Vulkan, 
+    // I.e. runs all the commands
+    // below in order
     virtual void initVulkan();
 
-
+    // Provides a basic description of an application to
+    // create an Instance
     virtual void createInstance();
 
-
+    // App can only be used on Windows 
+    // TODO : Query for device architecture
+    // and modify as such
     virtual void createSurface();
 
-
+    // Applies any validation layers and debugging applications
+    // if provided
     virtual void setupDebugMessenger();
 
-
+    
     virtual void pickPhysicalDevice();
 
 
@@ -66,7 +74,6 @@ protected:
     // Ie, we need to specify how many color and depth buffers there will be,
     // how many samples to use for each of them, 
     // and how their contents should be handled throughout the rendering operations.
-
     virtual void createRenderPass();
 
     virtual void createGraphicsPipeline();
@@ -118,6 +125,8 @@ protected:
     VkFence _inFlightFence;
 
 
+
+    
 };
 
 #endif //!__BASE_APPLICATION
