@@ -40,6 +40,10 @@ public:
         cleanup();
     }
 
+
+    //setters
+    void setFramebufferResized(bool framebufferResized) { _framebufferResized = framebufferResized; }
+
 protected:
 
     // Initializes the Main Window without a call to OpenGL
@@ -102,6 +106,19 @@ protected:
     // Memory Release 
     virtual void cleanup();
 
+
+    // Recreation of the Swapchain is sometimes necessary due to 
+    // changes in the window surface (resizing is an example).
+    // As such, we need a way to create a new swap chain.
+    void recreateSwapChain();
+
+    // A separate cleanup function for the swap chain is necessary to
+    // ensure proper handling of the objects inside the swap chain
+    void cleanupSwapchain();
+
+
+
+
 protected:
 
     uint16_t _WINDOW_WIDTH;
@@ -130,9 +147,11 @@ protected:
     std::vector<VkSemaphore> _renderFinishedSemaphores;
     std::vector<VkFence> _inFlightFences;
 
-
+    bool _framebufferResized;
 
     
 };
 
 #endif //!__BASE_APPLICATION
+
+

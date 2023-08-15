@@ -14,7 +14,6 @@ void BaseApp::initWindow()
 
 	// Tells GLFW not to create an OpenGL context with next call
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	// Create Window
 
@@ -25,7 +24,13 @@ void BaseApp::initWindow()
 		nullptr							// Relevant to only OpenGL
 	);
 
+
+	glfwSetWindowUserPointer(_window, this);
+	glfwSetFramebufferSizeCallback(_window, CommonUtils::framebufferResizeCallback);
 }
+
+
+
 
 void BaseApp::initVulkan()
 {
@@ -217,25 +222,23 @@ void BaseApp::createLogicalDevice()
 	vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
 }
 
-void BaseApp::createSwapChain()
+void BaseApp::createSwapChain() 
 {
-
-	SwapChainUtils::SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDevice, _surface);
+	SwapChainUtils::SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDevice, _surface );
 
 	VkSurfaceFormatKHR surfaceFormat = SwapChainUtils::chooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = SwapChainUtils::chooseSwapPresentMode(swapChainSupport.presentModes);
 	VkExtent2D extent = SwapChainUtils::chooseSwapExtent(swapChainSupport.capabilities, _window);
 
 	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-
-	if (swapChainSupport.capabilities.maxImageCount > 0
-		&& imageCount > swapChainSupport.capabilities.maxImageCount) {
+	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
 		imageCount = swapChainSupport.capabilities.maxImageCount;
 	}
 
 	VkSwapchainCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	createInfo.surface = _surface;
+
 	createInfo.minImageCount = imageCount;
 	createInfo.imageFormat = surfaceFormat.format;
 	createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -253,21 +256,15 @@ void BaseApp::createSwapChain()
 	}
 	else {
 		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		createInfo.queueFamilyIndexCount = 0; // Optional
-		createInfo.pQueueFamilyIndices = nullptr; // Optional
 	}
 
-	// No rotations or flipping images in a swap chain 
 	createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-	// Ignoring alpha blending with other windows 
 	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 	createInfo.presentMode = presentMode;
-	// Don't care sbout the color of obscured pixels
 	createInfo.clipped = VK_TRUE;
-	// Assume only one swap chain will be created
-	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapChain) != VK_SUCCESS) {
+	VkResult res = vkCreateSwapchainKHR(_device, &createInfo, nullptr, &_swapChain);
+	if (res != VK_SUCCESS) {
 		throw std::runtime_error("failed to create swap chain!");
 	}
 
@@ -620,6 +617,39 @@ void BaseApp::mainLoop()
 }
 
 
+void BaseApp::recreateSwapChain()
+{
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(_window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(_window, &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(_device);
+
+	cleanupSwapchain();
+
+	createSwapChain();
+	createImageViews();
+	createFramebuffers();
+}
+
+void BaseApp::cleanupSwapchain()
+{
+
+	for (VkFramebuffer framebuffer : _swapChainFramebuffers) {
+		vkDestroyFramebuffer(_device, framebuffer, nullptr);
+	}
+
+	for (VkImageView imageView : _swapChainImageViews) {
+		vkDestroyImageView(_device, imageView, nullptr);
+	}
+
+	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+}
+
+
 void BaseApp::cleanup()
 {
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -631,9 +661,7 @@ void BaseApp::cleanup()
 
 	vkDestroyCommandPool(_device, _commandPool, nullptr);
 
-	for (VkFramebuffer framebuffer : _swapChainFramebuffers) {
-		vkDestroyFramebuffer(_device, framebuffer, nullptr);
-	}
+	cleanupSwapchain();
 
 	vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
 
@@ -641,11 +669,8 @@ void BaseApp::cleanup()
 
 	vkDestroyRenderPass(_device, _renderPass, nullptr);
 
-	for (auto imageView : _swapChainImageViews) {
-		vkDestroyImageView(_device, imageView, nullptr);
-	}
 
-	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+
 	vkDestroyDevice(_device, nullptr);
 
 	if (enableValidationLayers) {
@@ -659,4 +684,6 @@ void BaseApp::cleanup()
 
 	glfwTerminate();
 }
+
+
 
