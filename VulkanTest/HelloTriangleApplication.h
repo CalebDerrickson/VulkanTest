@@ -4,8 +4,15 @@
 #include "BaseApp.h"
 
 
+
 class HelloTriangleApplication : public BaseApp {
 
+public:
+
+    HelloTriangleApplication() : _currentFrame(0)
+    {}
+
+    ~HelloTriangleApplication(){}
 
 private: // Private Functions
 
@@ -18,7 +25,8 @@ private: // Private Functions
     
 
 private: // Private Values
-
+    
+    uint32_t _currentFrame;
 
 };
 

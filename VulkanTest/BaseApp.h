@@ -1,6 +1,12 @@
 #ifndef __BASE_APPLICATION__
 #define __BASE_APPLICATION__
 
+/// <summary>
+/// The BaseApp class provides the "bare-bones" initilization and setup
+/// of an application using the Vulkan API. The expected use of this class 
+/// is to create an instance and invoke run().
+/// </summary>
+
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
@@ -14,11 +20,10 @@
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
 
-/// <summary>
-/// The BaseApp class provides the "bare-bones" initilization and setup
-/// of an application using the Vulkan API. The expected use of this class 
-/// is to create an instance and invoke run().
-/// </summary>
+
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
+
 
 class BaseApp
 {
@@ -82,7 +87,7 @@ protected:
 
     virtual void createCommandPool();
 
-    virtual void createCommandBuffer();
+    virtual void createCommandBuffers();
 
     virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
@@ -119,10 +124,11 @@ protected:
     VkPipeline _graphicsPipeline;
     std::vector<VkFramebuffer> _swapChainFramebuffers;
     VkCommandPool _commandPool;
-    VkCommandBuffer _commandBuffer;
-    VkSemaphore _imageAvailableSemaphore;
-    VkSemaphore _renderFinishedSemaphore;
-    VkFence _inFlightFence;
+    
+    std::vector<VkCommandBuffer> _commandBuffers;
+    std::vector<VkSemaphore> _imageAvailableSemaphores;
+    std::vector<VkSemaphore> _renderFinishedSemaphores;
+    std::vector<VkFence> _inFlightFences;
 
 
 
