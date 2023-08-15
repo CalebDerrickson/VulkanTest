@@ -1,3 +1,6 @@
+#ifndef __UTILS_MAIN__
+#define __UTILS_MAIN__
+
 #include <iostream>
 #include <fstream>
 #include <GLFW/glfw3.h>
@@ -313,3 +316,6 @@ VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice& devic
 
 	return shaderModule;
 }
+
+
+#endif // !__UTILS_MAIN__
