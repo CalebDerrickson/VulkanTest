@@ -21,6 +21,9 @@
     <ClCompile Include="HelloTriangleApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BaseApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HelloTriangleApplication.h">
@@ -32,19 +35,22 @@
     <ClInclude Include="InstanceUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DeviceUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SwapChainUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BaseApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="DebugUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

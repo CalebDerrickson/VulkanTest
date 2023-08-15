@@ -28,5 +28,12 @@ const std::vector<const char*> deviceExtensions = {
 };
 
 
+#include "CommonUtils.h"
+#include "DebugUtils.h"
+#include "DeviceUtils.h"
+#include "InstanceUtils.h"
+#include "SwapChainUtils.h"
+#include "ShaderUtils.h"
+
 
 #endif // !__MAIN_UTILS__
