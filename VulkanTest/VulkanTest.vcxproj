@@ -145,13 +145,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseApp.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CommonUtils.h" />
-    <ClInclude Include="DebugUtils.h" />
-    <ClInclude Include="DeviceUtils.h" />
+    <ClInclude Include="BaseApp.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
     <ClInclude Include="InstanceUtils.h" />
     <ClInclude Include="ShaderUtils.h" />
