@@ -47,6 +47,7 @@ void BaseApp::initVulkan()
 	createFramebuffers();
 	createCommandPool();
 	createVertexBuffer();
+	createIndexBuffer();
 	createCommandBuffers();
 	createSyncObjects();
 
@@ -545,6 +546,30 @@ void BaseApp::createVertexBuffer() {
 	vkFreeMemory(_device, stagingBufferMemory, nullptr);
 }
 
+void BaseApp::createIndexBuffer()
+{
+
+	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+		stagingBuffer, stagingBufferMemory, _physicalDevice, _device);
+
+	void* data;
+	vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, indices.data(), (size_t)bufferSize);
+	vkUnmapMemory(_device, stagingBufferMemory);
+
+	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+		_indexBuffer, _indexBufferMemory, _physicalDevice, _device);
+
+	MainUtils::copyBuffer(stagingBuffer, _indexBuffer, bufferSize, _commandPool, _graphicsQueue, _device);
+
+	vkDestroyBuffer(_device, stagingBuffer, nullptr);
+	vkFreeMemory(_device, stagingBufferMemory, nullptr);
+}
+
 void BaseApp::createCommandBuffers()
 {
 	_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -606,7 +631,9 @@ void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-		vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+		vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -700,8 +727,10 @@ void BaseApp::cleanup()
 
 	cleanupSwapchain();
 
-	vkDestroyBuffer(_device, _vertexBuffer, nullptr);
+	vkDestroyBuffer(_device, _indexBuffer, nullptr);
+	vkFreeMemory(_device, _indexBufferMemory, nullptr);
 
+	vkDestroyBuffer(_device, _vertexBuffer, nullptr);
 	vkFreeMemory(_device, _vertexBufferMemory, nullptr);
 
 	vkDestroyPipeline(_device, _graphicsPipeline, nullptr);

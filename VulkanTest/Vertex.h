@@ -36,13 +36,5 @@ struct Vertex {
     }
 };
 
-
-// This is temporarily here, I'm not sure where else to put it
-const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-};
-
 #endif // !__VERTEX_DEF__
 

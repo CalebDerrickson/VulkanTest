@@ -23,7 +23,16 @@
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
+const std::vector<Vertex> vertices = {
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
 
+const std::vector<uint16_t> indices = {
+    0, 1, 2, 2, 3, 0
+};
 
 class BaseApp
 {
@@ -91,7 +100,10 @@ protected:
 
     virtual void createCommandPool();
 
+    // TODO: Use only one VkBuffer to store the buffer and use offsets.
+    // Reason being is that they are continuous within memory
     virtual void createVertexBuffer();
+    virtual void createIndexBuffer();
 
     virtual void createCommandBuffers();
 
@@ -142,7 +154,10 @@ protected:
     VkCommandPool _commandPool;
     VkBuffer _vertexBuffer;
     VkDeviceMemory _vertexBufferMemory;
-    
+    VkBuffer _indexBuffer;
+    VkDeviceMemory _indexBufferMemory;
+
+
     std::vector<VkCommandBuffer> _commandBuffers;
     std::vector<VkSemaphore> _imageAvailableSemaphores;
     std::vector<VkSemaphore> _renderFinishedSemaphores;
