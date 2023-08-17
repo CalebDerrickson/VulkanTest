@@ -114,6 +114,32 @@ namespace MainUtils {
 		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 	}
 
+	template<typename T>
+	void createVkBuffer(T& vkData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usage, VkPhysicalDevice physicalDevice, VkDevice device,
+		VkQueue graphicsQueue, VkCommandPool commandPool)
+	{
+
+		VkDeviceSize bufferSize = sizeof(vkData[0]) * vkData.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer, stagingBufferMemory, physicalDevice, device);
+
+		void* data;
+		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, vkData.data(), (size_t)bufferSize);
+		vkUnmapMemory(device, stagingBufferMemory);
+
+		MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			buffer, bufferMemory, physicalDevice, device);
+
+		MainUtils::copyBuffer(stagingBuffer, buffer, bufferSize, commandPool, graphicsQueue, device);
+
+		vkDestroyBuffer(device, stagingBuffer, nullptr);
+		vkFreeMemory(device, stagingBufferMemory, nullptr);
+	}
+
 }
 
 #endif // !__MAIN_UTILS__

@@ -520,54 +520,18 @@ void BaseApp::createCommandPool()
 	}
 }
 
-void BaseApp::createVertexBuffer() {
+void BaseApp::createVertexBuffer() 
+{
 	
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-	
-	// First stage vertex buffers on the CPU, then send them to GPU
-	// Temporary, so should be freed once finished using
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-
-	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		stagingBuffer, stagingBufferMemory, _physicalDevice, _device);
-
-	void* data;
-	vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(_device, stagingBufferMemory);
-
-	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		_vertexBuffer, _vertexBufferMemory, _physicalDevice, _device);
-
-	MainUtils::copyBuffer(stagingBuffer, _vertexBuffer, bufferSize, _commandPool, _graphicsQueue, _device);
-
-	vkDestroyBuffer(_device, stagingBuffer, nullptr);
-	vkFreeMemory(_device, stagingBufferMemory, nullptr);
+	MainUtils::createVkBuffer<decltype(vertices)> (vertices, _vertexBuffer, _vertexBufferMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+		_physicalDevice, _device, _graphicsQueue, _commandPool);
 }
 
 void BaseApp::createIndexBuffer()
 {
 
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-		stagingBuffer, stagingBufferMemory, _physicalDevice, _device);
-
-	void* data;
-	vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(_device, stagingBufferMemory);
-
-	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-		_indexBuffer, _indexBufferMemory, _physicalDevice, _device);
-
-	MainUtils::copyBuffer(stagingBuffer, _indexBuffer, bufferSize, _commandPool, _graphicsQueue, _device);
-
-	vkDestroyBuffer(_device, stagingBuffer, nullptr);
-	vkFreeMemory(_device, stagingBufferMemory, nullptr);
+	MainUtils::createVkBuffer<decltype(indices)> (indices, _indexBuffer, _indexBufferMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		_physicalDevice, _device, _graphicsQueue, _commandPool);
 }
 
 void BaseApp::createCommandBuffers()
