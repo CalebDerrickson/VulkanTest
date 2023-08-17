@@ -45,7 +45,22 @@ namespace DeviceUtils {
 		return suitability;
 	}
 
-	
+	uint32_t findMemoryType(uint32_t& typeFilter, const VkMemoryPropertyFlags& properties, VkPhysicalDevice physicalDevice)
+	{
+		VkPhysicalDeviceMemoryProperties memProperties;
+		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+		
+		// Find suitable memory type for the buffer
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+			if (typeFilter & (1 << i) &&
+				(memProperties.memoryTypes[i].propertyFlags & properties) == properties
+			    ) {
+				return i;
+			}
+		}
+
+		throw std::runtime_error("failed to find suitable memory type!");
+	}
 }
 
 

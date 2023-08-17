@@ -19,7 +19,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
-
+#include "Vertex.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -91,6 +91,8 @@ protected:
 
     virtual void createCommandPool();
 
+    virtual void createVertexBuffer();
+
     virtual void createCommandBuffers();
 
     virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
@@ -141,6 +143,8 @@ protected:
     VkPipeline _graphicsPipeline;
     std::vector<VkFramebuffer> _swapChainFramebuffers;
     VkCommandPool _commandPool;
+    VkBuffer _vertexBuffer;
+    VkDeviceMemory _vertexBufferMemory;
     
     std::vector<VkCommandBuffer> _commandBuffers;
     std::vector<VkSemaphore> _imageAvailableSemaphores;

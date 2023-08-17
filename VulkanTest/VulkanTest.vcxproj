@@ -159,6 +159,11 @@
     <ClInclude Include="ShaderUtils.h" />
     <ClInclude Include="SwapChainUtils.h" />
     <ClInclude Include="MainUtils.h" />
+    <ClInclude Include="Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
