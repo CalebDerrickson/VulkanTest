@@ -45,8 +45,8 @@ void BaseApp::initVulkan()
 	createRenderPass();
 	createGraphicsPipeline();
 	createFramebuffers();
-	createVertexBuffer();
 	createCommandPool();
+	createVertexBuffer();
 	createCommandBuffers();
 	createSyncObjects();
 
@@ -520,35 +520,29 @@ void BaseApp::createCommandPool()
 }
 
 void BaseApp::createVertexBuffer() {
-	VkBufferCreateInfo bufferInfo{};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	
+	// First stage vertex buffers on the CPU, then send them to GPU
+	// Temporary, so should be freed once finished using
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
 
-	if (vkCreateBuffer(_device, &bufferInfo, nullptr, &_vertexBuffer) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create vertex buffer!");
-	}
-
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(_device, _vertexBuffer, &memRequirements);
-
-	VkMemoryAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = DeviceUtils::findMemoryType(memRequirements.memoryTypeBits, 
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _physicalDevice);
-
-	if (vkAllocateMemory(_device, &allocInfo, nullptr, &_vertexBufferMemory) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate vertex buffer memory!");
-	}
-
-	vkBindBufferMemory(_device, _vertexBuffer, _vertexBufferMemory, 0);
+	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		stagingBuffer, stagingBufferMemory, _physicalDevice, _device);
 
 	void* data;
-	vkMapMemory(_device, _vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferInfo.size);
-	vkUnmapMemory(_device, _vertexBufferMemory);
+	vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(_device, stagingBufferMemory);
+
+	MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		_vertexBuffer, _vertexBufferMemory, _physicalDevice, _device);
+
+	MainUtils::copyBuffer(stagingBuffer, _vertexBuffer, bufferSize, _commandPool, _graphicsQueue, _device);
+
+	vkDestroyBuffer(_device, stagingBuffer, nullptr);
+	vkFreeMemory(_device, stagingBufferMemory, nullptr);
 }
 
 void BaseApp::createCommandBuffers()
@@ -675,6 +669,8 @@ void BaseApp::recreateSwapChain()
 	createImageViews();
 	createFramebuffers();
 }
+
+
 
 void BaseApp::cleanupSwapchain()
 {

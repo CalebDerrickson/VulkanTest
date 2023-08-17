@@ -74,6 +74,11 @@ namespace CommonUtils {
 		auto app = reinterpret_cast<BaseApp*>(glfwGetWindowUserPointer(window));
 		app->setFramebufferResized(true);
 	}
+
+
+
+
+
 }
 
 #endif // !__COMMON_UTILS__

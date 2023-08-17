@@ -118,9 +118,6 @@ protected:
     // ensure proper handling of the objects inside the swap chain
     void cleanupSwapchain();
 
-
-
-
 protected:
 
     uint16_t _WINDOW_WIDTH;
