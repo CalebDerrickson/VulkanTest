@@ -4,13 +4,11 @@
 #include "BaseApp.h"
 
 
-
 class HelloTriangleApplication : public BaseApp {
 
 public:
 
-    HelloTriangleApplication() : _currentFrame(0)
-    {}
+    HelloTriangleApplication(){}
 
     ~HelloTriangleApplication(){}
 
@@ -21,12 +19,12 @@ private: // Private Functions
 
     void drawFrame();
 
-
+    void updateUniformBuffer(uint32_t currentImage);
     
 
 private: // Private Values
     
-    uint32_t _currentFrame;
+
 
 };
 

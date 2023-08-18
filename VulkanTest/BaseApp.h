@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <vector>
 #include <set>
+#include <chrono>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
@@ -20,6 +21,10 @@
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
 #include "Vertex.h"
+
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
+
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -94,6 +99,8 @@ protected:
     // and how their contents should be handled throughout the rendering operations.
     virtual void createRenderPass();
 
+    virtual void createDescriptorSetLayout();
+
     virtual void createGraphicsPipeline();
 
     virtual void createFramebuffers();
@@ -104,6 +111,9 @@ protected:
     // Reason being is that they are continuous within memory
     virtual void createVertexBuffer();
     virtual void createIndexBuffer();
+    virtual void createUniformBuffers();
+    virtual void createDescriptorPool();
+    virtual void createDescriptorSets();
 
     virtual void createCommandBuffers();
 
@@ -132,13 +142,14 @@ protected:
 
 protected:
 
+    uint32_t _currentFrame;
     uint16_t _WINDOW_WIDTH;
     uint16_t _WINDOW_HEIGHT;
     GLFWwindow* _window;
     VkInstance _instance;
     VkSurfaceKHR _surface;
     VkQueue _presentQueue;
-    VkDebugUtilsMessengerEXT debugMessenger;
+    VkDebugUtilsMessengerEXT _debugMessenger;
     VkPhysicalDevice _physicalDevice;
     VkDevice _device;
     VkQueue _graphicsQueue;
@@ -148,6 +159,7 @@ protected:
     VkExtent2D _swapChainExtent;
     std::vector<VkImageView> _swapChainImageViews;
     VkRenderPass _renderPass;
+    VkDescriptorSetLayout _descriptorSetLayout;
     VkPipelineLayout _pipelineLayout;
     VkPipeline _graphicsPipeline;
     std::vector<VkFramebuffer> _swapChainFramebuffers;
@@ -162,6 +174,13 @@ protected:
     std::vector<VkSemaphore> _imageAvailableSemaphores;
     std::vector<VkSemaphore> _renderFinishedSemaphores;
     std::vector<VkFence> _inFlightFences;
+
+    std::vector<VkBuffer> _uniformBuffers;
+    std::vector<VkDeviceMemory> _uniformBuffersMemory;
+    std::vector<void*> _uniformBuffersMapped;
+
+    VkDescriptorPool _descriptorPool;
+    std::vector<VkDescriptorSet> _descriptorSets;
 
     bool _framebufferResized;
 

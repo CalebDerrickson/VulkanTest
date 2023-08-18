@@ -15,6 +15,7 @@
 #include <string>
 #include <vulkan/vk_enum_string_helper.h>
 
+
 #ifdef NDEBUG 
 const bool enableValidationLayers = false;
 #else
@@ -28,7 +29,6 @@ const std::vector<const char*> validationLayers = {
 const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 };
-
 
 #include "CommonUtils.h"
 #include "DebugUtils.h"
@@ -139,6 +139,8 @@ namespace MainUtils {
 		vkDestroyBuffer(device, stagingBuffer, nullptr);
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
+
+
 
 }
 

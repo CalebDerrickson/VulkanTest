@@ -2,6 +2,7 @@
 #define __VERTEX_DEF__
 
 #include <vulkan/vulkan.h>
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
 #include <array>
 
@@ -34,6 +35,13 @@ struct Vertex {
 
         return attributeDescriptions;
     }
+};
+
+struct UniformBufferObject {
+    glm::vec2 foo;
+    alignas(16) glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
 };
 
 #endif // !__VERTEX_DEF__
