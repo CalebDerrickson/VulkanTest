@@ -1,12 +1,6 @@
 #ifndef __BASE_APPLICATION__
 #define __BASE_APPLICATION__
 
-/// <summary>
-/// The BaseApp class provides the "bare-bones" initilization and setup
-/// of an application using the Vulkan API. The expected use of this class 
-/// is to create an instance and invoke run().
-/// </summary>
-
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
@@ -16,15 +10,18 @@
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
+#define GLM_FORCE_RADIANS
+
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+#include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
 #include "Vertex.h"
-
-#define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
-
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -107,6 +104,8 @@ protected:
 
     virtual void createCommandPool();
 
+    virtual void createTextureImage();
+
     // TODO: Use only one VkBuffer to store the buffer and use offsets.
     // Reason being is that they are continuous within memory
     virtual void createVertexBuffer();
@@ -181,6 +180,12 @@ protected:
 
     VkDescriptorPool _descriptorPool;
     std::vector<VkDescriptorSet> _descriptorSets;
+
+    VkBuffer _stagingBuffer;
+    VkDeviceMemory _stagingBufferMemory;
+
+    VkImage _textureImage;
+    VkDeviceMemory _textureImageMemory;
 
     bool _framebufferResized;
 

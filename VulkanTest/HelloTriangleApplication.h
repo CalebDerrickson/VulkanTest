@@ -1,6 +1,7 @@
 #ifndef HELLO__TRIANGLE__APPLICATION__H
 #define HELLO__TRIANGLE__APPLICATION__H
 
+
 #include "BaseApp.h"
 
 

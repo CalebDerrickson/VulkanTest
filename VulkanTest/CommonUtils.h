@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef __COMMON_UTILS__
 #define __COMMON_UTILS__
 

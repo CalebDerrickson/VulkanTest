@@ -16,6 +16,9 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{e78a9517-2e63-45f8-9d7c-b725951bed9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{52b03b69-78b3-4f01-9455-2475d7002360}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -67,5 +70,10 @@
     <None Include="shaders\shader.vert">
       <Filter>shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\WackSquare.png">
+      <Filter>textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

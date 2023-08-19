@@ -1,3 +1,4 @@
+
 #include "HelloTriangleApplication.h"
 
 int main() {
