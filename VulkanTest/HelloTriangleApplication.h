@@ -1,6 +1,4 @@
-#ifndef HELLO__TRIANGLE__APPLICATION__H
-#define HELLO__TRIANGLE__APPLICATION__H
-
+#pragma once
 
 #include "BaseApp.h"
 
@@ -30,4 +28,3 @@ private: // Private Values
 };
 
 
-#endif

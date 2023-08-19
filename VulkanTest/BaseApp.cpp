@@ -1,6 +1,10 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "BaseApp.h"
 
+
 #include "MainUtils.h"
+
 
 
 void BaseApp::initWindow()
@@ -551,7 +555,7 @@ void BaseApp::createTextureImage()
 {
 
 	int texWidth, texHeight, texChannels;
-	stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	stbi_uc* pixels = stbi_load("textures/WackSquare.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 	if (!pixels) {
@@ -824,26 +828,24 @@ void BaseApp::cleanupSwapchain()
 
 void BaseApp::cleanup()
 {
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-
-		vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
-		vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
-		vkDestroyFence(_device, _inFlightFences[i], nullptr);
-	}
-
-	vkDestroyCommandPool(_device, _commandPool, nullptr);
-
 	cleanupSwapchain();
+
+	vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+	vkDestroyRenderPass(_device, _renderPass, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroyBuffer(_device, _uniformBuffers[i], nullptr);
 		vkFreeMemory(_device, _uniformBuffersMemory[i], nullptr);
 	}
-	
-	vkDestroyImage(_device, _textureImage, nullptr);
-	vkFreeMemory(_device, _textureImageMemory, nullptr);
 
 	vkDestroyDescriptorPool(_device, _descriptorPool, nullptr);
+
+	vkDestroyBuffer(_device, _stagingBuffer, nullptr);
+	vkFreeMemory(_device, _stagingBufferMemory, nullptr);
+
+	vkDestroyImage(_device, _textureImage, nullptr);
+	vkFreeMemory(_device, _textureImageMemory, nullptr);
 
 	vkDestroyDescriptorSetLayout(_device, _descriptorSetLayout, nullptr);
 
@@ -853,13 +855,13 @@ void BaseApp::cleanup()
 	vkDestroyBuffer(_device, _vertexBuffer, nullptr);
 	vkFreeMemory(_device, _vertexBufferMemory, nullptr);
 
-	vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(_device, _inFlightFences[i], nullptr);
+	}
 
-	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
-
-	vkDestroyRenderPass(_device, _renderPass, nullptr);
-
-
+	vkDestroyCommandPool(_device, _commandPool, nullptr);
 
 	vkDestroyDevice(_device, nullptr);
 

@@ -1,5 +1,4 @@
-#ifndef __INSTANCE_UTILS__
-#define __INSTANCE_UTILS__
+#pragma once
 
 #include "MainUtils.h"
 
@@ -48,4 +47,4 @@ namespace InstanceUtils {
 
 }
 
-#endif // !__INSTANCE_UTILS__
+

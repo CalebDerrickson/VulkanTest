@@ -1,5 +1,4 @@
-#ifndef __COMMON_UTILS__
-#define __COMMON_UTILS__
+#pragma once
 
 #include "MainUtils.h"
 
@@ -93,5 +92,3 @@ namespace CommonUtils {
 
 
 }
-
-#endif // !__COMMON_UTILS__

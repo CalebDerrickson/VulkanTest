@@ -1,5 +1,4 @@
-#ifndef __MAIN_UTILS__
-#define __MAIN_UTILS__
+#pragma once
 
 
 #include <iostream>
@@ -115,6 +114,7 @@ namespace MainUtils {
 	}
 
 	VkCommandBuffer beginSingleTimeCommands(VkCommandPool commandPool, VkDevice device) {
+		
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -245,25 +245,23 @@ namespace MainUtils {
 		region.bufferOffset = 0;
 		region.bufferRowLength = 0;
 		region.bufferImageHeight = 0;
-
 		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
 		region.imageSubresource.layerCount = 1;
-
 		region.imageOffset = { 0, 0, 0 };
-		region.imageExtent = { width, height, 1};
+		region.imageExtent = {
+			width,
+			height,
+			1
+		};
 
-
+		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 		endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
-
-		vkCmdCopyBufferToImage(commandBuffer, buffer, image, 
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 
 	}
 
 }
 
-#endif // !__MAIN_UTILS__

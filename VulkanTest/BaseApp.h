@@ -1,6 +1,4 @@
-#ifndef __BASE_APPLICATION__
-#define __BASE_APPLICATION__
-
+#pragma once
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
@@ -14,7 +12,7 @@
 #define GLM_FORCE_RADIANS
 
 
-#define STB_IMAGE_IMPLEMENTATION
+
 #include <stb_image.h>
 
 #include <GLFW/glfw3.h>
@@ -163,8 +161,10 @@ protected:
     VkPipeline _graphicsPipeline;
     std::vector<VkFramebuffer> _swapChainFramebuffers;
     VkCommandPool _commandPool;
+
     VkBuffer _vertexBuffer;
     VkDeviceMemory _vertexBufferMemory;
+
     VkBuffer _indexBuffer;
     VkDeviceMemory _indexBufferMemory;
 
@@ -192,6 +192,6 @@ protected:
     
 };
 
-#endif //!__BASE_APPLICATION
+
 
 

@@ -1,5 +1,4 @@
-#ifndef __SWAPCHAIN_UTILS__
-#define __SWAPCHAIN_UTILS__
+#pragma once
 
 #include "MainUtils.h"
 
@@ -95,5 +94,5 @@ namespace SwapChainUtils {
 	}
 }
 
-#endif // !__SWAPCHAIN_UTILS__
+
 

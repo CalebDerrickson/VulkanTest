@@ -1,5 +1,4 @@
-#ifndef __SHADER_UTILS__
-#define __SHADER_UTILS__
+#pragma once
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -24,4 +23,4 @@ namespace ShaderUtils {
 
 }
 
-#endif // !__SHADER_UTILS__
+

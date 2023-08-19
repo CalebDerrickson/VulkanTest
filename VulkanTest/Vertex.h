@@ -1,5 +1,4 @@
-#ifndef __VERTEX_DEF__
-#define __VERTEX_DEF__
+#pragma once
 
 #include <vulkan/vulkan.h>
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -44,5 +43,4 @@ struct UniformBufferObject {
     glm::mat4 proj;
 };
 
-#endif // !__VERTEX_DEF__
 

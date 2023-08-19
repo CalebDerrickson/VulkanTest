@@ -1,5 +1,4 @@
-#ifndef __DEVICE_UTILS__
-#define __DEVICE_UTILS__
+#pragma once
 
 #include "MainUtils.h"
 #include "SwapChainUtils.h"
@@ -64,4 +63,3 @@ namespace DeviceUtils {
 }
 
 
-#endif // !__DEVICE_UTILS__

@@ -1,5 +1,4 @@
-#ifndef __DEBUG_UTILS__
-#define __DEBUG_UTILS__
+#pragma once
 
 #include "MainUtils.h"
 
@@ -45,5 +44,5 @@ namespace DebugUtils {
 
 }
 
-#endif // !__DEBUG_UTILS__
+
 
