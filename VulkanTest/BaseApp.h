@@ -103,6 +103,8 @@ protected:
     virtual void createCommandPool();
 
     virtual void createTextureImage();
+    virtual void createTextureImageView();
+    virtual void createTextureSampler();
 
     // TODO: Use only one VkBuffer to store the buffer and use offsets.
     // Reason being is that they are continuous within memory
@@ -186,6 +188,9 @@ protected:
 
     VkImage _textureImage;
     VkDeviceMemory _textureImageMemory;
+
+    VkImageView _textureImageView;
+    VkSampler _textureSampler;
 
     bool _framebufferResized;
 

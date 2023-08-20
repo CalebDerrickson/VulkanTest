@@ -40,6 +40,10 @@ namespace DeviceUtils {
 			suitability = suitability && !(swapchainSupport.formats.empty() || swapchainSupport.presentModes.empty());
 		}
 
+		//Anisotropy check
+		VkPhysicalDeviceFeatures supportedFeatures;
+		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+		suitability == suitability && supportedFeatures.samplerAnisotropy;
 
 		return suitability;
 	}
