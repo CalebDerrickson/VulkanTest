@@ -27,6 +27,7 @@ const std::vector<const char*> validationLayers = {
 
 const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+	//Enable Best Practices vaildation in the future
 };
 
 #include "CommonUtils.h"
