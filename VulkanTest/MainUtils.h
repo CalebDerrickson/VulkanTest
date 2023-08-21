@@ -185,6 +185,11 @@ namespace MainUtils {
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
+	bool hasStencilComponent(VkFormat format)
+	{
+		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+	}
+
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout,
 		VkCommandPool commandPool, VkQueue graphicsQueue, VkDevice device) {
 
@@ -233,7 +238,6 @@ namespace MainUtils {
 			1, &barrier
 		);
 
-
 		endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
 	}
 
@@ -263,13 +267,13 @@ namespace MainUtils {
 	}
 
 
-	VkImageView createImageView(VkImage image, VkFormat format, VkDevice device) {
+	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkDevice device) {
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = image;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.aspectMask = aspectFlags;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -282,5 +286,18 @@ namespace MainUtils {
 
 		return imageView;
 	}
+
+	VkFormat findDepthFormat(VkPhysicalDevice physicalDevice)
+	{
+
+		return DeviceUtils::findSupportedFormat(
+			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+			VK_IMAGE_TILING_OPTIMAL,
+			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+			physicalDevice
+		);
+	}
+
+
 }
 
