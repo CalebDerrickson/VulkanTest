@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <chrono>
+#include <unordered_map>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
@@ -14,31 +15,17 @@
 
 
 #include <stb_image.h>
-
+#include <tiny_obj_loader.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
 #include "Vertex.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "constants.h"
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
 
-const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
 
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-    {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-};
 
-const std::vector<uint16_t> indices = {
-    0, 1, 2, 2, 3, 0,
-    4, 5, 6, 6, 7, 4
-};
 
 class BaseApp
 {
@@ -115,6 +102,7 @@ protected:
     virtual void createTextureImageView();
     virtual void createTextureSampler();
 
+    virtual void loadModel();
     // TODO: Use only one VkBuffer to store the buffer and use offsets.
     // Reason being is that they are continuous within memory
     virtual void createVertexBuffer();
@@ -173,12 +161,15 @@ protected:
     std::vector<VkFramebuffer> _swapChainFramebuffers;
     VkCommandPool _commandPool;
 
+    std::vector<Vertex> _vertices;
+    std::vector<uint32_t> _indices;
+    
     VkBuffer _vertexBuffer;
     VkDeviceMemory _vertexBufferMemory;
 
     VkBuffer _indexBuffer;
     VkDeviceMemory _indexBufferMemory;
-
+    
 
     std::vector<VkCommandBuffer> _commandBuffers;
     std::vector<VkSemaphore> _imageAvailableSemaphores;

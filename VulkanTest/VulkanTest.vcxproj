@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
     <ClInclude Include="CommonUtils.h" />
+    <ClInclude Include="constants.h" />
     <ClInclude Include="DebugUtils.h" />
     <ClInclude Include="DeviceUtils.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
