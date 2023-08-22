@@ -696,14 +696,13 @@ void BaseApp::loadModel()
 			};
 
 			vertex.texCoord = {
-				attrib.texcoords[2 * index.texcoord_index + 0],
+				       attrib.texcoords[2 * index.texcoord_index + 0],
 				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
 			};
 
 			vertex.color = glm::vec3(1.0f);
 
-			//identifying unique vertices
-
+			//identifying the unique vertices
 			if (uniqueVertices.count(vertex) == 0) {
 				uniqueVertices[vertex] = static_cast<uint32_t>(_vertices.size());
 				_vertices.push_back(vertex);

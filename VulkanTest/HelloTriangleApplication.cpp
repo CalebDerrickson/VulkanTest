@@ -5,7 +5,9 @@ void HelloTriangleApplication::mainLoop()
 
 	while (!glfwWindowShouldClose(_window)) {
 		glfwPollEvents();
+		
 		drawFrame();
+		
 	}
 
 	vkDeviceWaitIdle(_device);
