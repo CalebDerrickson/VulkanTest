@@ -10,7 +10,7 @@ extern const char* TEXTURE_PATH = "textures/viking_room.png";
 
 void BaseApp::initWindow()
 {
-
+	
 	//Hard Code window width and height for the moment
 	_WINDOW_WIDTH = 800;
 	_WINDOW_HEIGHT = 600;
@@ -117,12 +117,10 @@ void BaseApp::createInstance()
 	}
 	else {
 		createInfo.enabledLayerCount = 0;
-
 		createInfo.pNext = nullptr;
 	}
 
 	// Creates the instance
-	
 	if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create instance!");
 	}
@@ -299,7 +297,7 @@ void BaseApp::createImageViews()
 	_swapChainImageViews.resize(_swapChainImages.size());
 
 	for (uint32_t i = 0; i < _swapChainImages.size(); i++) {
-		_swapChainImageViews[i] = MainUtils::createImageView(_swapChainImages[i], _swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, _device);
+		_swapChainImageViews[i] = MainUtils::createImageView(_swapChainImages[i], _swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, _device);
 	}
 }
 
@@ -575,7 +573,7 @@ void BaseApp::createDepthResources()
 	
 	VkFormat depthFormat = MainUtils::findDepthFormat(_physicalDevice);
 
-	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
+	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, _mipLevels, depthFormat, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		_depthImage, _depthImageMemory, 
@@ -585,7 +583,7 @@ void BaseApp::createDepthResources()
 	//MainUtils::transitionImageLayout(_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
 	//	_commandPool, _graphicsQueue, _device);
 
-	_depthImageView = MainUtils::createImageView(_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, _device);
+	_depthImageView = MainUtils::createImageView(_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1 ,_device);
 }
 
 void BaseApp::createTextureImage()
@@ -599,6 +597,9 @@ void BaseApp::createTextureImage()
 		throw std::runtime_error("failed to load texture image!");
 	}
 
+	//calculating MipLevels
+	_mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	MainUtils::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
@@ -611,29 +612,32 @@ void BaseApp::createTextureImage()
 
 	stbi_image_free(pixels);
 
-	MainUtils::createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
-		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-		_textureImage, _textureImageMemory, _physicalDevice, _device);
+	MainUtils::createImage(texWidth, texHeight, _mipLevels, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
+		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory, _physicalDevice, _device);
 
 
-	MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
-		_commandPool, _graphicsQueue, _device);
+	MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
+		_mipLevels, _commandPool, _graphicsQueue, _device);
 	
 	MainUtils::copyBufferToImage(stagingBuffer, _textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 
 		_commandPool, _graphicsQueue, _device);
 
 	MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-	_commandPool, _graphicsQueue, _device);
+	_mipLevels, _commandPool, _graphicsQueue, _device);
+	//transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
 
 	vkDestroyBuffer(_device, _stagingBuffer, nullptr);
 	vkFreeMemory(_device, _stagingBufferMemory, nullptr);
 
+	MainUtils::generateMipMaps(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, _mipLevels, 
+		_commandPool, _graphicsQueue, _device, _physicalDevice);
 }
 
 void BaseApp::createTextureImageView()
 {
 
-	_textureImageView = MainUtils::createImageView(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, _device);
+	_textureImageView = MainUtils::createImageView(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, _mipLevels, _device);
 }
 
 
@@ -644,6 +648,9 @@ void BaseApp::createTextureSampler()
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.magFilter = VK_FILTER_LINEAR;
 	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = static_cast<float>(_mipLevels);
+	samplerInfo.mipLodBias = 0.0f;
 	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;

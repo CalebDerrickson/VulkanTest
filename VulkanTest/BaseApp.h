@@ -186,6 +186,7 @@ protected:
     VkBuffer _stagingBuffer;
     VkDeviceMemory _stagingBufferMemory;
 
+    uint32_t _mipLevels;
     VkImage _textureImage;
     VkDeviceMemory _textureImageMemory;
 
@@ -195,6 +196,7 @@ protected:
     VkImage _depthImage;
     VkDeviceMemory _depthImageMemory;
     VkImageView _depthImageView;
+
 
     bool _framebufferResized;
 
