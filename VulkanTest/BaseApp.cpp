@@ -2,7 +2,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "BaseApp.h"
-#include "MainUtils.h"
+#include "Utils/MainUtils.h"
 
 extern const int MAX_FRAMES_IN_FLIGHT = 2;
 extern const char* MODEL_PATH = "models/viking_room.obj";
@@ -131,7 +131,7 @@ void BaseApp::createInstance()
 void BaseApp::createSurface()
 {
 
-	// App can only be used on Windows 
+ 	// App can only be used on Windows 
 	// TODO : Query for device architecture
 	// and modify as such
 	VkWin32SurfaceCreateInfoKHR createInfo{};

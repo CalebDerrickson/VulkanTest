@@ -151,15 +151,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
-    <ClInclude Include="CommonUtils.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="DebugUtils.h" />
-    <ClInclude Include="DeviceUtils.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
-    <ClInclude Include="InstanceUtils.h" />
-    <ClInclude Include="ShaderUtils.h" />
-    <ClInclude Include="SwapChainUtils.h" />
-    <ClInclude Include="MainUtils.h" />
+    <ClInclude Include="Utils\CommonUtils.h" />
+    <ClInclude Include="Utils\DebugUtils.h" />
+    <ClInclude Include="Utils\DeviceUtils.h" />
+    <ClInclude Include="Utils\InstanceUtils.h" />
+    <ClInclude Include="Utils\MainUtils.h" />
+    <ClInclude Include="Utils\ShaderUtils.h" />
+    <ClInclude Include="Utils\SwapChainUtils.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
