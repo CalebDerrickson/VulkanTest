@@ -212,6 +212,7 @@ void BaseApp::createLogicalDevice()
 	//This can be populated later on once we're doing something more substantial
 	VkPhysicalDeviceFeatures deviceFeatures{};
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
+	deviceFeatures.sampleRateShading = VK_TRUE;
 
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -465,7 +466,8 @@ void BaseApp::createGraphicsPipeline()
 
 	VkPipelineMultisampleStateCreateInfo multisampling{};
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.sampleShadingEnable = VK_TRUE;
+	multisampling.minSampleShading = 0.2f;
 	multisampling.rasterizationSamples = _msaaSamples;
 
 	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
@@ -590,7 +592,6 @@ void BaseApp::createColorResources()
 {
 
 	VkFormat colorFormat = _swapChainImageFormat;
-	std::cout << "Color msaaSamples : " << _msaaSamples << std::endl;
 	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _msaaSamples,
 		colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _colorImage, _colorImageMemory, 
@@ -604,7 +605,6 @@ void BaseApp::createDepthResources()
 {
 	
 	VkFormat depthFormat = MainUtils::findDepthFormat(_physicalDevice);
-	std::cout << "Depth msaaSamples : " << _msaaSamples << std::endl;
 	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _msaaSamples,
 		depthFormat, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
