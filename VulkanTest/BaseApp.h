@@ -95,6 +95,8 @@ protected:
 
     virtual void createCommandPool();
 
+    virtual void createColorResources();
+
     virtual void createDepthResources();
 
 
@@ -197,6 +199,12 @@ protected:
     VkDeviceMemory _depthImageMemory;
     VkImageView _depthImageView;
 
+    // defined here as a default value. not the best practice, but
+    // it will do for now. 
+    VkSampleCountFlagBits _msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+    VkImage _colorImage;
+    VkDeviceMemory _colorImageMemory;
+    VkImageView _colorImageView;
 
     bool _framebufferResized;
 
