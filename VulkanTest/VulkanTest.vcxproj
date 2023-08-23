@@ -151,6 +151,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
+    <ClInclude Include="common\QueueFamilyIndices.h" />
+    <ClInclude Include="common\Vertex.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
     <ClInclude Include="Utils\CommonUtils.h" />
@@ -160,7 +162,6 @@
     <ClInclude Include="Utils\MainUtils.h" />
     <ClInclude Include="Utils\ShaderUtils.h" />
     <ClInclude Include="Utils\SwapChainUtils.h" />
-    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag" />

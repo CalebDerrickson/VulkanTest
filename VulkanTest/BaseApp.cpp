@@ -7,6 +7,7 @@
 extern const int MAX_FRAMES_IN_FLIGHT = 2;
 extern const char* MODEL_PATH = "models/viking_room.obj";
 extern const char* TEXTURE_PATH = "textures/viking_room.png";
+uint32_t QueueFamilyIndices::InstanceCount = 0;
 
 void BaseApp::initWindow()
 {
@@ -193,7 +194,7 @@ void BaseApp::pickPhysicalDevice()
 void BaseApp::createLogicalDevice()
 {
 
-	CommonUtils::QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
+	QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
 	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
@@ -265,7 +266,7 @@ void BaseApp::createSwapChain()
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	CommonUtils::QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
+	QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -576,7 +577,7 @@ void BaseApp::createFramebuffers()
 void BaseApp::createCommandPool()
 {
 
-	CommonUtils::QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
+	QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

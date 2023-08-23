@@ -1,19 +1,8 @@
 #pragma once
 
 #include "MainUtils.h"
-
+#include "../common/QueueFamilyIndices.h"
 namespace CommonUtils {
-
-	struct QueueFamilyIndices {
-
-		std::optional<uint32_t> graphicsFamily;
-		std::optional<uint32_t> presentFamily;
-
-		bool isComplete() { return graphicsFamily.has_value() && presentFamily.has_value(); }
-
-		QueueFamilyIndices() = default;
-	};
-
 	// The buffer copy command requires a queue family that supports transfer operations, which is 
 	// indicated using VK_QUEUE_TRANSFER_BIT. The good news is that any queue family with VK_QUEUE_GRAPHICS_BIT 
 	// or VK_QUEUE_COMPUTE_BIT capabilities already implicitly support VK_QUEUE_TRANSFER_BIT operations. The 

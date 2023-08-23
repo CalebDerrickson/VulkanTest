@@ -19,7 +19,8 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
-#include "Vertex.h"
+#include "common/Vertex.h"
+#include "common/QueueFamilyIndices.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "constants.h"
 

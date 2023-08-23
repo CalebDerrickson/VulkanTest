@@ -28,7 +28,7 @@ namespace DeviceUtils {
 		bool suitability = true;
 
 		// Family Indices check
-		CommonUtils::QueueFamilyIndices indices = CommonUtils::findQueueFamilies(device, surface);
+		QueueFamilyIndices indices = CommonUtils::findQueueFamilies(device, surface);
 		suitability = suitability && indices.isComplete();
 
 		// Device Extensions Check
