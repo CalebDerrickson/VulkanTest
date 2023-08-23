@@ -2,7 +2,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "BaseApp.h"
-
+#include "Utils.h"
 extern const int MAX_FRAMES_IN_FLIGHT = 2;
 extern const char* MODEL_PATH = "models/viking_room.obj";
 extern const char* TEXTURE_PATH = "textures/viking_room.png";
@@ -683,14 +683,14 @@ void BaseApp::loadModel()
 void BaseApp::createVertexBuffer() 
 {
 	
-	MainUtils::createVkBuffer<decltype(_vertices)> (_vertices, _vertexBuffer, _vertexBufferMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+	MainUtils::createVkBuffer(_vertices, _vertexBuffer, _vertexBufferMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
 		_physicalDevice, _device, _graphicsQueue, _commandPool);
 }
 
 void BaseApp::createIndexBuffer()
 {
 
-	MainUtils::createVkBuffer<decltype(_indices)> (_indices, _indexBuffer, _indexBufferMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+	MainUtils::createVkBuffer(_indices, _indexBuffer, _indexBufferMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		_physicalDevice, _device, _graphicsQueue, _commandPool);
 }
 
@@ -998,6 +998,7 @@ void BaseApp::cleanup()
 	vkDestroySurfaceKHR(instance, _surface, nullptr);
 
 	_instanceManager.~InstanceManager();
+	_windowManager.~WindowManager();
 }
 
 

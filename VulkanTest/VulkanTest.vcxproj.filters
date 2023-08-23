@@ -19,9 +19,6 @@
     <Filter Include="textures">
       <UniqueIdentifier>{52b03b69-78b3-4f01-9455-2475d7002360}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Utils">
-      <UniqueIdentifier>{9cbb5b92-2e56-4e9d-b92f-b35f7c288ecb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\common">
       <UniqueIdentifier>{793a3c2f-9b06-499c-b433-86e26838868a}</UniqueIdentifier>
     </Filter>
@@ -42,7 +39,7 @@
     <ClCompile Include="InstanceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainUtils.cpp">
+    <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,7 +68,7 @@
     <ClInclude Include="SwapChainSupportDetails.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="MainUtils.h">
+    <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

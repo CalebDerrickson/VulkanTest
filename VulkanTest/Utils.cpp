@@ -1,6 +1,6 @@
-#include "MainUtils.h"
+#include "Utils.h"
 
-namespace MainUtils 
+namespace MainUtils
 {
 
 	// The right way to allocate memory for a large number of objects at the same time 
@@ -126,9 +126,33 @@ namespace MainUtils
 		endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
 	}
 
-	template<typename T>
-	void createVkBuffer(T& vkData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usage, VkPhysicalDevice physicalDevice, VkDevice device,
-		VkQueue graphicsQueue, VkCommandPool commandPool)
+	 void createVkBuffer(std::vector<unsigned int>& vkData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usage,
+		VkPhysicalDevice physicalDevice, VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool)
+	{
+	
+		VkDeviceSize bufferSize = sizeof(vkData[0]) * vkData.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer, stagingBufferMemory, physicalDevice, device);
+
+		void* data;
+		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, vkData.data(), (size_t)bufferSize);
+		vkUnmapMemory(device, stagingBufferMemory);
+
+		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			buffer, bufferMemory, physicalDevice, device);
+
+		copyBuffer(stagingBuffer, buffer, bufferSize, commandPool, graphicsQueue, device);
+
+		vkDestroyBuffer(device, stagingBuffer, nullptr);
+		vkFreeMemory(device, stagingBufferMemory, nullptr);
+	}
+
+	void createVkBuffer(std::vector<Vertex>& vkData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usage,
+		VkPhysicalDevice physicalDevice, VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool)
 	{
 
 		VkDeviceSize bufferSize = sizeof(vkData[0]) * vkData.size();
@@ -151,6 +175,7 @@ namespace MainUtils
 		vkDestroyBuffer(device, stagingBuffer, nullptr);
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
+
 
 	bool hasStencilComponent(VkFormat format)
 	{
@@ -427,12 +452,13 @@ namespace CommonUtils
 		return indices;
 	}
 
-	static std::vector<char> readFile(const std::string& filename)
+	std::vector<char> readFile(const char* filename)
 	{
 		std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
 		if (!file.is_open()) {
-			throw std::runtime_error("failed to open file " + filename + "!");
+
+			throw std::runtime_error("failed to open file!");
 		}
 
 		size_t fileSize = (size_t)file.tellg();
@@ -471,7 +497,7 @@ namespace DebugUtils
 		}
 	}
 
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+	VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -752,4 +778,5 @@ namespace InstanceUtils {
 	}
 
 }
+
 
