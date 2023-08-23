@@ -129,6 +129,7 @@ void BaseApp::createSurface()
 		throw std::runtime_error("failed to create window surface!");
 	}
 
+	// This might mess it up
 	window = nullptr;
 }
 

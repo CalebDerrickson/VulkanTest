@@ -7,11 +7,11 @@
 #include <chrono>
 #include <unordered_map>
 
-#define VK_USE_PLATFORM_WIN32_KHR
+
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
+#define VK_USE_PLATFORM_WIN32_KHR
 
 #include <stb_image.h>
 #include <tiny_obj_loader.h>
