@@ -10,6 +10,7 @@ WindowManager::WindowManager(uint16_t width, uint16_t height, const char* window
 WindowManager::~WindowManager()
 {
 	glfwDestroyWindow(_window);
+	glfwTerminate();
 }
 
 void WindowManager::initWindow()

@@ -31,8 +31,8 @@ class BaseApp
 {
 public:
     
-    BaseApp();
-    ~BaseApp();
+    BaseApp() = default;
+    ~BaseApp() = default;
     
     void run()
     {
@@ -41,7 +41,8 @@ public:
         cleanup();
     }
 
-
+    static constexpr int WIDTH = 800;
+    static constexpr int HEIGHT = 600;
 
 
 protected:
@@ -137,7 +138,7 @@ protected:
 
     uint32_t _currentFrame;
 
-    WindowManager _windowManager;
+    WindowManager _windowManager{ WIDTH, HEIGHT, "VULKAN" };
     VkInstance _instance;
     VkSurfaceKHR _surface;
     VkQueue _presentQueue;

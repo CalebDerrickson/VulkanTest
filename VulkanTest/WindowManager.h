@@ -17,6 +17,8 @@ public:
 	WindowManager(uint16_t width = 800, uint16_t height = 600, const char* windowName = "Default Window Name");
 	~WindowManager();
 
+	WindowManager(const WindowManager&) = delete;
+	WindowManager& operator=(const WindowManager&) = delete;
 
 	//setters
 	void setFramebufferResized(bool framebufferResized) { _framebufferResized = framebufferResized; }

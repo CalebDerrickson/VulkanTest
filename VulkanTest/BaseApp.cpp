@@ -9,16 +9,6 @@ extern const char* MODEL_PATH = "models/viking_room.obj";
 extern const char* TEXTURE_PATH = "textures/viking_room.png";
 uint32_t QueueFamilyIndices::InstanceCount = 0;
 
-BaseApp::BaseApp() 
-{
-
-	_windowManager = WindowManager(800, 600, "VULKAN");
-}
-
-BaseApp::~BaseApp() 
-{
-
-}
 
 void BaseApp::initVulkan()
 {
@@ -1058,8 +1048,6 @@ void BaseApp::cleanup()
 
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyInstance(_instance, nullptr);
-
-	glfwTerminate();
 }
 
 
