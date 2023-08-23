@@ -2,14 +2,15 @@
 
 void HelloTriangleApplication::mainLoop() 
 {
-
-	while (!glfwWindowShouldClose(_window)) {
+	GLFWwindow* window = _windowManager.getWindow();
+	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		
 		drawFrame();
 		
 	}
 
+	window = nullptr;
 	vkDeviceWaitIdle(_device);
 }
 
@@ -73,8 +74,8 @@ void HelloTriangleApplication::drawFrame()
 
 	result = vkQueuePresentKHR(_presentQueue, &presentInfo);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
-		_framebufferResized = false;
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _windowManager.getFramebufferResized()) {
+		_windowManager.setFramebufferResized(false);
 		recreateSwapChain();
 	}
 	else if (result != VK_SUCCESS) {

@@ -70,11 +70,7 @@ namespace CommonUtils {
 		return buffer;
 	}
 
-	// Function to detect window resizes
-	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-		auto app = reinterpret_cast<BaseApp*>(glfwGetWindowUserPointer(window));
-		app->setFramebufferResized(true);
-	}
+
 
 
 

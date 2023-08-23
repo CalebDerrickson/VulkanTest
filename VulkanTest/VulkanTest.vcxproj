@@ -148,6 +148,7 @@
     <ClCompile Include="BaseApp.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Utils\MainUtils.h" />
     <ClInclude Include="Utils\ShaderUtils.h" />
     <ClInclude Include="Utils\SwapChainUtils.h" />
+    <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag" />

@@ -8,21 +8,20 @@
 #include <unordered_map>
 
 #define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#define GLFW_EXPOSE_NATIVE_WIN32
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 
 #include <stb_image.h>
 #include <tiny_obj_loader.h>
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
+
 #include <vulkan/vulkan.h>
 #include "common/Vertex.h"
 #include "common/QueueFamilyIndices.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "constants.h"
+#include "WindowManager.h"
 
 
 
@@ -32,25 +31,20 @@ class BaseApp
 {
 public:
     
-    BaseApp() = default;
-    ~BaseApp() = default;
+    BaseApp();
+    ~BaseApp();
     
     void run()
     {
-        initWindow();
         initVulkan();
         mainLoop();
         cleanup();
     }
 
 
-    //setters
-    void setFramebufferResized(bool framebufferResized) { _framebufferResized = framebufferResized; }
+
 
 protected:
-
-    // Initializes the Main Window without a call to OpenGL
-    virtual void initWindow();
 
     // Initializes Vulkan, 
     // I.e. runs all the commands
@@ -142,9 +136,8 @@ protected:
 protected:
 
     uint32_t _currentFrame;
-    uint16_t _WINDOW_WIDTH;
-    uint16_t _WINDOW_HEIGHT;
-    GLFWwindow* _window;
+
+    WindowManager _windowManager;
     VkInstance _instance;
     VkSurfaceKHR _surface;
     VkQueue _presentQueue;
@@ -207,9 +200,7 @@ protected:
     VkDeviceMemory _colorImageMemory;
     VkImageView _colorImageView;
 
-    bool _framebufferResized;
 
-    
 };
 
 

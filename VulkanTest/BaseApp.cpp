@@ -9,35 +9,16 @@ extern const char* MODEL_PATH = "models/viking_room.obj";
 extern const char* TEXTURE_PATH = "textures/viking_room.png";
 uint32_t QueueFamilyIndices::InstanceCount = 0;
 
-void BaseApp::initWindow()
+BaseApp::BaseApp() 
 {
-	
-	//Hard Code window width and height for the moment
-	_WINDOW_WIDTH = 800;
-	_WINDOW_HEIGHT = 600;
 
-	// Initialize GLFW
-	glfwInit();
-
-	// Tells GLFW not to create an OpenGL context with next call
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-	// Create Window
-
-	_window = glfwCreateWindow(
-		_WINDOW_WIDTH, _WINDOW_HEIGHT,	// Width, Height
-		"Vulkan",						// Title
-		nullptr,						// Which Monitor to display
-		nullptr							// Relevant to only OpenGL
-	);
-
-
-	glfwSetWindowUserPointer(_window, this);
-	glfwSetFramebufferSizeCallback(_window, CommonUtils::framebufferResizeCallback);
+	_windowManager = WindowManager(800, 600, "VULKAN");
 }
 
+BaseApp::~BaseApp() 
+{
 
-
+}
 
 void BaseApp::initVulkan()
 {
@@ -131,20 +112,24 @@ void BaseApp::createInstance()
 
 void BaseApp::createSurface()
 {
+	// This might be an issue, since we're only copying 
+	// the address of the window. I don't know if the window 
+	// will update.
+	GLFWwindow* window = _windowManager.getWindow();
 
  	// App can only be used on Windows 
 	// TODO : Query for device architecture
 	// and modify as such
 	VkWin32SurfaceCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	createInfo.hwnd = glfwGetWin32Window(_window);
+	createInfo.hwnd = glfwGetWin32Window(window);
 	createInfo.hinstance = GetModuleHandle(nullptr);
 
-	if (glfwCreateWindowSurface(_instance, _window, nullptr, &_surface) != VK_SUCCESS) {
+	if (glfwCreateWindowSurface(_instance, window, nullptr, &_surface) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create window surface!");
 	}
 
-
+	window = nullptr;
 }
 
 void BaseApp::setupDebugMessenger()
@@ -244,11 +229,12 @@ void BaseApp::createLogicalDevice()
 
 void BaseApp::createSwapChain() 
 {
+	GLFWwindow* window = _windowManager.getWindow();
 	SwapChainUtils::SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDevice, _surface );
 
 	VkSurfaceFormatKHR surfaceFormat = SwapChainUtils::chooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = SwapChainUtils::chooseSwapPresentMode(swapChainSupport.presentModes);
-	VkExtent2D extent = SwapChainUtils::chooseSwapExtent(swapChainSupport.capabilities, _window);
+	VkExtent2D extent = SwapChainUtils::chooseSwapExtent(swapChainSupport.capabilities, window);
 
 	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
@@ -294,6 +280,7 @@ void BaseApp::createSwapChain()
 
 	_swapChainImageFormat = surfaceFormat.format;
 	_swapChainExtent = extent;
+	window = nullptr;
 }
 
 void BaseApp::createImageViews()
@@ -966,21 +953,23 @@ void BaseApp::createSyncObjects()
 
 void BaseApp::mainLoop()
 {
-
-	while (!glfwWindowShouldClose(_window)) {
+	GLFWwindow* window = _windowManager.getWindow();
+	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 	}
 
+	window = nullptr;
 	vkDeviceWaitIdle(_device);
 }
 
 
 void BaseApp::recreateSwapChain()
 {
+	GLFWwindow* window = _windowManager.getWindow();
 	int width = 0, height = 0;
-	glfwGetFramebufferSize(_window, &width, &height);
+	glfwGetFramebufferSize(window, &width, &height);
 	while (width == 0 || height == 0) {
-		glfwGetFramebufferSize(_window, &width, &height);
+		glfwGetFramebufferSize(window, &width, &height);
 		glfwWaitEvents();
 	}
 
@@ -1068,8 +1057,6 @@ void BaseApp::cleanup()
 
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyInstance(_instance, nullptr);
-
-	glfwDestroyWindow(_window);
 
 	glfwTerminate();
 }
