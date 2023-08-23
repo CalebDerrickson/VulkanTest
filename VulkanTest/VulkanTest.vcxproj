@@ -147,7 +147,9 @@
   <ItemGroup>
     <ClCompile Include="BaseApp.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
+    <ClCompile Include="InstanceManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MainUtils.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,13 +158,9 @@
     <ClInclude Include="common\Vertex.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
-    <ClInclude Include="Utils\CommonUtils.h" />
-    <ClInclude Include="Utils\DebugUtils.h" />
-    <ClInclude Include="Utils\DeviceUtils.h" />
-    <ClInclude Include="Utils\InstanceUtils.h" />
-    <ClInclude Include="Utils\MainUtils.h" />
-    <ClInclude Include="Utils\ShaderUtils.h" />
-    <ClInclude Include="Utils\SwapChainUtils.h" />
+    <ClInclude Include="InstanceManager.h" />
+    <ClInclude Include="MainUtils.h" />
+    <ClInclude Include="SwapChainSupportDetails.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>

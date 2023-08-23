@@ -7,22 +7,22 @@
 #include <chrono>
 #include <unordered_map>
 
-
-
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLFW_INCLUDE_VULKAN
+#define GLFW_EXPOSE_NATIVE_WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
 
 #include <stb_image.h>
 #include <tiny_obj_loader.h>
 
-#include <vulkan/vulkan.h>
-#include "common/Vertex.h"
-#include "common/QueueFamilyIndices.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include "constants.h"
 #include "WindowManager.h"
+#include "InstanceManager.h"
 
+#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 
 
@@ -52,9 +52,6 @@ protected:
     // below in order
     virtual void initVulkan();
 
-    // Provides a basic description of an application to
-    // create an Instance
-    virtual void createInstance();
 
     // App can only be used on Windows 
     // TODO : Query for device architecture
@@ -139,7 +136,10 @@ protected:
     uint32_t _currentFrame;
 
     WindowManager _windowManager{ WIDTH, HEIGHT, "VULKAN" };
-    VkInstance _instance;
+    
+    InstanceManager _instanceManager{ "HELLO VULKAN" };
+   
+    
     VkSurfaceKHR _surface;
     VkQueue _presentQueue;
     VkDebugUtilsMessengerEXT _debugMessenger;

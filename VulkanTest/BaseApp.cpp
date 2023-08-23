@@ -2,7 +2,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "BaseApp.h"
-#include "Utils/MainUtils.h"
 
 extern const int MAX_FRAMES_IN_FLIGHT = 2;
 extern const char* MODEL_PATH = "models/viking_room.obj";
@@ -13,7 +12,7 @@ uint32_t QueueFamilyIndices::InstanceCount = 0;
 void BaseApp::initVulkan()
 {
 
-	createInstance();
+	//createInstance();
 	setupDebugMessenger();
 	createSurface();
 	pickPhysicalDevice();
@@ -41,71 +40,13 @@ void BaseApp::initVulkan()
 
 }
 
-void BaseApp::createInstance()
-{
-	// First checks for available validation layers
-	if (enableValidationLayers && !InstanceUtils::checkValidationLayerSupport()) {
-		throw std::runtime_error("Validation layers requested, but not available!");
-	}
-
-
-	// Informs the driver about our application for optimization
-	VkApplicationInfo appInfo{};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Hello Triangle";
-	appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-	appInfo.pEngineName = "No Engine";
-	appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
-
-
-	// Tells the Vulkan driver which global extensions and validation layers to use
-	VkInstanceCreateInfo createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pApplicationInfo = &appInfo;
-
-
-	// Specifies the extensions we need to use
-	std::vector<const char*> extensions = InstanceUtils::getRequiredExtensions();
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-	createInfo.ppEnabledExtensionNames = extensions.data();
-
-
-	// Enable global validation layers if available
-	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-	if (enableValidationLayers) {
-
-		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-		createInfo.ppEnabledLayerNames = validationLayers.data();
-		debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 
-			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT 
-			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-		debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT 
-			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT 
-			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		debugCreateInfo.pfnUserCallback = DebugUtils::debugCallback;
-		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-
-	}
-	else {
-		createInfo.enabledLayerCount = 0;
-		createInfo.pNext = nullptr;
-	}
-
-	// Creates the instance
-	if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) {
-		throw std::runtime_error("Failed to create instance!");
-	}
-
-}
-
 void BaseApp::createSurface()
 {
 	// This might be an issue, since we're only copying 
 	// the address of the window. I don't know if the window 
 	// will update.
 	GLFWwindow* window = _windowManager.getWindow();
+	VkInstance instance = _instanceManager.getInstance();
 
  	// App can only be used on Windows 
 	// TODO : Query for device architecture
@@ -114,19 +55,21 @@ void BaseApp::createSurface()
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hwnd = glfwGetWin32Window(window);
 	createInfo.hinstance = GetModuleHandle(nullptr);
-
-	if (glfwCreateWindowSurface(_instance, window, nullptr, &_surface) != VK_SUCCESS) {
+	
+	if (glfwCreateWindowSurface(instance, window, nullptr, &_surface) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create window surface!");
 	}
 
 	// This might mess it up
 	window = nullptr;
+	instance = nullptr;
 }
 
 void BaseApp::setupDebugMessenger()
 {
 
 	if (!enableValidationLayers) return;
+	VkInstance instance = _instanceManager.getInstance();
 
 	VkDebugUtilsMessengerCreateInfoEXT createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -134,25 +77,28 @@ void BaseApp::setupDebugMessenger()
 	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 	createInfo.pfnUserCallback = DebugUtils::debugCallback;
 
-	if (DebugUtils::CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS) {
+	if (DebugUtils::CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS) {
 		throw std::runtime_error("failed to set up debug messenger!");
 	}
+
+	instance = nullptr;
 }
 
 void BaseApp::pickPhysicalDevice()
 {
 
+	VkInstance instance = _instanceManager.getInstance();
 	_physicalDevice = VK_NULL_HANDLE;
 
 	uint32_t deviceCount = 0;
-	vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
+	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
 	if (deviceCount == 0) {
 		throw std::runtime_error("failed to find GPUs with Vulkan support!");
 	}
 
 	std::vector<VkPhysicalDevice> devices(deviceCount);
-	vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
+	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 	for (const VkPhysicalDevice device : devices) {
 		if (DeviceUtils::isDeviceSuitable(device, _surface)) {
@@ -165,6 +111,8 @@ void BaseApp::pickPhysicalDevice()
 	if (_physicalDevice == VK_NULL_HANDLE) {
 		throw std::runtime_error("failed to find a suitable GPU!");
 	}
+
+	instance = nullptr;
 }
 
 void BaseApp::createLogicalDevice()
@@ -221,7 +169,7 @@ void BaseApp::createLogicalDevice()
 void BaseApp::createSwapChain() 
 {
 	GLFWwindow* window = _windowManager.getWindow();
-	SwapChainUtils::SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDevice, _surface );
+	SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDevice, _surface );
 
 	VkSurfaceFormatKHR surfaceFormat = SwapChainUtils::chooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = SwapChainUtils::chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -1002,6 +950,7 @@ void BaseApp::cleanupSwapchain()
 
 void BaseApp::cleanup()
 {
+	VkInstance instance = _instanceManager.getInstance();
 	
 	cleanupSwapchain();
 
@@ -1043,11 +992,12 @@ void BaseApp::cleanup()
 	vkDestroyDevice(_device, nullptr);
 
 	if (enableValidationLayers) {
-		DebugUtils::DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
+		DebugUtils::DestroyDebugUtilsMessengerEXT(instance, _debugMessenger, nullptr);
 	}
 
-	vkDestroySurfaceKHR(_instance, _surface, nullptr);
-	vkDestroyInstance(_instance, nullptr);
+	vkDestroySurfaceKHR(instance, _surface, nullptr);
+
+	_instanceManager.~InstanceManager();
 }
 
 

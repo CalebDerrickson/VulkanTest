@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MainUtils.h"
 #include "SwapChainUtils.h"
-#include "CommonUtils.h"
+#include "MainUtils.h"
+
 
 namespace DeviceUtils {
 

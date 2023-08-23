@@ -1,15 +1,8 @@
 #pragma once
-
-#define GLFW_INCLUDE_VULKAN
-#define GLFW_EXPOSE_NATIVE_WIN32
-#define VK_USE_PLATFORM_WIN32_KHR
-
 #include <cstdint>
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-
-
 
 class WindowManager
 {
@@ -40,4 +33,5 @@ private:
 	GLFWwindow* _window;
 };
 
+// Function to detect window resizes
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height);

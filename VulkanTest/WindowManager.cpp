@@ -40,7 +40,7 @@ void WindowManager::initWindow()
 
 
 
-// Function to detect window resizes
+
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 	auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
 	app->setFramebufferResized(true);
