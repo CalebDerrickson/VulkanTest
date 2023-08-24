@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseApp.cpp" />
+    <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="InstanceManager.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="common\QueueFamilyIndices.h" />
     <ClInclude Include="common\Vertex.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
     <ClInclude Include="InstanceManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />

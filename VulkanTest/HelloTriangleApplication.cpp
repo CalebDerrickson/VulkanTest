@@ -11,18 +11,18 @@ void HelloTriangleApplication::mainLoop()
 	}
 
 	window = nullptr;
-	vkDeviceWaitIdle(_device);
+	vkDeviceWaitIdle(_deviceManager.getDevice());
 }
 
 void HelloTriangleApplication::drawFrame()
 {
 
-	vkWaitForFences(_device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
+	vkWaitForFences(_deviceManager.getDevice(), 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 	
 
 	uint32_t imageIndex;
 
-	VkResult result = vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, 
+	VkResult result = vkAcquireNextImageKHR(_deviceManager.getDevice(), _swapChain, UINT64_MAX,
 		_imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -34,7 +34,7 @@ void HelloTriangleApplication::drawFrame()
 	}
 
 	// Only reset the fence if we are submitting work
-	vkResetFences(_device, 1, &_inFlightFences[_currentFrame]);
+	vkResetFences(_deviceManager.getDevice(), 1, &_inFlightFences[_currentFrame]);
 
 	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
 	recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
@@ -56,7 +56,7 @@ void HelloTriangleApplication::drawFrame()
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
+	if (vkQueueSubmit(_deviceManager.getGraphicsQueue(), 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 
@@ -72,7 +72,7 @@ void HelloTriangleApplication::drawFrame()
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
-	result = vkQueuePresentKHR(_presentQueue, &presentInfo);
+	result = vkQueuePresentKHR(_deviceManager.getPresentQueue(), &presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _windowManager.getFramebufferResized()) {
 		_windowManager.setFramebufferResized(false);

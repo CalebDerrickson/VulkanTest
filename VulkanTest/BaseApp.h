@@ -20,6 +20,7 @@
 #include "InstanceManager.h"
 #include "PhysicalDeviceManager.h"
 #include "SurfaceManager.h"
+#include "DeviceManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -68,7 +69,7 @@ protected:
     // virtual void pickPhysicalDevice();
 
 
-    virtual void createLogicalDevice();
+    //virtual void createLogicalDevice();
 
 
     virtual void createSwapChain();
@@ -145,13 +146,12 @@ protected:
 
     PhysicalDeviceManager _physicalDeviceManager;
     
+    DeviceManager _deviceManager;
     
-    VkQueue _presentQueue;
     VkDebugUtilsMessengerEXT _debugMessenger;
     
     
-    VkDevice _device;
-    VkQueue _graphicsQueue;
+
     VkSwapchainKHR _swapChain;
     std::vector<VkImage> _swapChainImages;
     VkFormat _swapChainImageFormat;
