@@ -2,7 +2,6 @@
 
 InstanceManager::InstanceManager()
 {
-	createInstance();
 }
 
 InstanceManager::~InstanceManager()

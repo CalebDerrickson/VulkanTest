@@ -10,7 +10,7 @@ uint32_t QueueFamilyIndices::InstanceCount = 0;
 
 BaseApp::BaseApp()
 {
-
+	std::cout << "Creating Base Class."<<std::endl;
 }
 
 BaseApp::~BaseApp()
@@ -22,6 +22,8 @@ void BaseApp::initVulkan()
 {
 
 	_windowManager.initWindow(WIDTH, HEIGHT, "VULKAN");
+
+
 	_instanceManager.createInstance("HELLO VULKAN");
 	//createInstance();
 	setupDebugMessenger();
