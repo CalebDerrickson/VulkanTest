@@ -1,10 +1,9 @@
 #include "WindowManager.h"
 
 
-WindowManager::WindowManager(uint16_t width, uint16_t height, const char* windowName) :
-	_windowWidth(width), _windowHeight(height), _windowName(windowName)
+WindowManager::WindowManager()
 {
-	initWindow();
+
 }
 
 WindowManager::~WindowManager()
@@ -13,9 +12,12 @@ WindowManager::~WindowManager()
 	glfwTerminate();
 }
 
-void WindowManager::initWindow()
+void WindowManager::initWindow(uint16_t width, uint16_t height, const char* windowName)
 {
-	std::cout << "Initializing Window" << std::endl;
+	_windowWidth = width;
+	_windowHeight = height;
+	_windowName = windowName;
+
 	// Initialize GLFW
 	glfwInit();
 
@@ -35,7 +37,6 @@ void WindowManager::initWindow()
 	glfwSetWindowUserPointer(_window, this);
 	glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 
-	std::cout << "Window Initialized." << std::endl;
 }
 
 

@@ -12,7 +12,7 @@ class SurfaceManager
 {
 public:
 
-	SurfaceManager(GLFWwindow* window, VkInstance instance);
+	SurfaceManager();
 	~SurfaceManager();
 
 	SurfaceManager(const SurfaceManager&) = delete;
@@ -21,10 +21,10 @@ public:
 	//getters
 	VkSurfaceKHR getSurface() { return _surface; }
 
-private:
-
 	void createSurface(GLFWwindow* window, VkInstance instance);
+	void destroySurface(VkInstance instance);
 
+	
 private:
 
 	VkSurfaceKHR _surface;

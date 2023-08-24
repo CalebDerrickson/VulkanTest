@@ -7,7 +7,7 @@
 class WindowManager
 {
 public:
-	WindowManager(uint16_t width = 800, uint16_t height = 600, const char* windowName = "Default Window Name");
+	WindowManager();
 	~WindowManager();
 
 	WindowManager(const WindowManager&) = delete;
@@ -20,9 +20,11 @@ public:
 	GLFWwindow* getWindow() const { return _window; }
 	bool getFramebufferResized() const { return _framebufferResized; }
 
+	void initWindow(uint16_t width = 800, uint16_t height = 600, const char* windowName = "Default Window Name");
+
 private:
 
-	void initWindow();
+	
 
 	uint16_t _windowWidth;
 	uint16_t _windowHeight;

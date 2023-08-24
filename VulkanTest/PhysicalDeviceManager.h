@@ -9,7 +9,7 @@ class PhysicalDeviceManager
 {
 public:
 
-	PhysicalDeviceManager(VkInstance instance, VkSurfaceKHR surface);
+	PhysicalDeviceManager();
 	~PhysicalDeviceManager();
 
 	PhysicalDeviceManager(const PhysicalDeviceManager&) = delete;
@@ -17,8 +17,7 @@ public:
 
 	// Getters
 	VkPhysicalDevice getPhysicalDevice() { return _physicalDevice; }
-
-private: // Private Functions
+	VkSampleCountFlagBits getMsaaSamples() { return _msaaSamples; }
 
 	void pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
 

@@ -33,8 +33,8 @@ class BaseApp
 {
 public:
     
-    BaseApp() = default;
-    ~BaseApp() = default;
+    BaseApp();
+    ~BaseApp();
     
     void run()
     {
@@ -137,13 +137,13 @@ protected:
 
     uint32_t _currentFrame;
 
-    WindowManager _windowManager{ WIDTH, HEIGHT, "VULKAN" };
+    WindowManager _windowManager;
     
-    InstanceManager _instanceManager{ "HELLO VULKAN" };
+    InstanceManager _instanceManager;
    
-    SurfaceManager _surfaceManager{ _windowManager.getWindow(), _instanceManager.getInstance() };
+    SurfaceManager _surfaceManager;
 
-    PhysicalDeviceManager _physicalDeviceManager{_instanceManager.getInstance(), _surfaceManager.getSurface()};
+    PhysicalDeviceManager _physicalDeviceManager;
     
     
     VkQueue _presentQueue;
@@ -200,9 +200,6 @@ protected:
     VkDeviceMemory _depthImageMemory;
     VkImageView _depthImageView;
 
-    // defined here as a default value. not the best practice, but
-    // it will do for now. 
-    VkSampleCountFlagBits _msaaSamples = VK_SAMPLE_COUNT_1_BIT;
     VkImage _colorImage;
     VkDeviceMemory _colorImageMemory;
     VkImageView _colorImageView;

@@ -1,10 +1,10 @@
 #include "PhysicalDeviceManager.h"
 
-PhysicalDeviceManager::PhysicalDeviceManager(VkInstance instance, VkSurfaceKHR surface)
+PhysicalDeviceManager::PhysicalDeviceManager()
 	: _physicalDevice(nullptr), _msaaSamples(VK_SAMPLE_COUNT_1_BIT),
 	_deviceCount(0), _devices({})
 {
-	pickPhysicalDevice(instance, surface);
+
 }
 
 PhysicalDeviceManager::~PhysicalDeviceManager()

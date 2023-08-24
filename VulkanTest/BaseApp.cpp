@@ -8,14 +8,28 @@ extern const char* MODEL_PATH = "models/viking_room.obj";
 extern const char* TEXTURE_PATH = "textures/viking_room.png";
 uint32_t QueueFamilyIndices::InstanceCount = 0;
 
+BaseApp::BaseApp()
+{
+
+}
+
+BaseApp::~BaseApp()
+{
+
+}
 
 void BaseApp::initVulkan()
 {
 
+	_windowManager.initWindow(WIDTH, HEIGHT, "VULKAN");
+	_instanceManager.createInstance("HELLO VULKAN");
 	//createInstance();
 	setupDebugMessenger();
 	//createSurface();
+
+	_surfaceManager.createSurface(_windowManager.getWindow(), _instanceManager.getInstance());
 	//pickPhysicalDevice();
+	_physicalDeviceManager.pickPhysicalDevice(_instanceManager.getInstance(), _surfaceManager.getSurface());
 	createLogicalDevice();
 	createSwapChain();
 	createImageViews();
@@ -183,7 +197,7 @@ void BaseApp::createRenderPass()
 
 	VkAttachmentDescription colorAttachment{};
 	colorAttachment.format = _swapChainImageFormat;
-	colorAttachment.samples = _msaaSamples;
+	colorAttachment.samples = _physicalDeviceManager.getMsaaSamples();
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -193,7 +207,7 @@ void BaseApp::createRenderPass()
 
 	VkAttachmentDescription depthAttachment{};
 	depthAttachment.format = MainUtils::findDepthFormat(_physicalDeviceManager.getPhysicalDevice());
-	depthAttachment.samples = _msaaSamples;
+	depthAttachment.samples = _physicalDeviceManager.getMsaaSamples();
 	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -343,7 +357,7 @@ void BaseApp::createGraphicsPipeline()
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multisampling.sampleShadingEnable = VK_TRUE;
 	multisampling.minSampleShading = 0.2f;
-	multisampling.rasterizationSamples = _msaaSamples;
+	multisampling.rasterizationSamples = _physicalDeviceManager.getMsaaSamples();
 
 	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -467,7 +481,7 @@ void BaseApp::createColorResources()
 {
 
 	VkFormat colorFormat = _swapChainImageFormat;
-	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _msaaSamples,
+	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _physicalDeviceManager.getMsaaSamples(),
 		colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _colorImage, _colorImageMemory, 
 		_physicalDeviceManager.getPhysicalDevice(), _device
@@ -480,7 +494,7 @@ void BaseApp::createDepthResources()
 {
 	
 	VkFormat depthFormat = MainUtils::findDepthFormat(_physicalDeviceManager.getPhysicalDevice());
-	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _msaaSamples,
+	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _physicalDeviceManager.getMsaaSamples(),
 		depthFormat, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -943,8 +957,7 @@ void BaseApp::cleanup()
 		DebugUtils::DestroyDebugUtilsMessengerEXT(instance, _debugMessenger, nullptr);
 	}
 
-
-	_surfaceManager.~SurfaceManager();
+	_surfaceManager.destroySurface(_instanceManager.getInstance());
 	_instanceManager.~InstanceManager();
 	_windowManager.~WindowManager();
 }

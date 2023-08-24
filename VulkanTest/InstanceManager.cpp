@@ -1,7 +1,6 @@
 #include "InstanceManager.h"
 
-InstanceManager::InstanceManager(const char* applicationName)
-	: _applicationName(applicationName)
+InstanceManager::InstanceManager()
 {
 	createInstance();
 }
@@ -11,8 +10,9 @@ InstanceManager::~InstanceManager()
 	vkDestroyInstance(_instance, nullptr);
 }
 
-void InstanceManager::createInstance()
+void InstanceManager::createInstance(const char* applicationName)
 {
+	_applicationName = applicationName;
 
 	// First checks for available validation layers
 	if (enableValidationLayers && !InstanceUtils::checkValidationLayerSupport()) {

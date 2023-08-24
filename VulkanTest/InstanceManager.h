@@ -6,7 +6,7 @@
 class InstanceManager
 {
 public:
-	InstanceManager(const char* applicationName = "Default Instance Name");
+	InstanceManager();
 	~InstanceManager();
 
 	InstanceManager(const InstanceManager&) = delete;
@@ -15,9 +15,7 @@ public:
 	//getters
 	VkInstance getInstance() const { return _instance; }
 
-private: // Private Functions
-
-	void createInstance();
+	void createInstance(const char* applicationName = "Default Instance Name");
 
 private: // Private Values
 

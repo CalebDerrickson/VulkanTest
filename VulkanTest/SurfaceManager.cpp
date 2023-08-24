@@ -1,14 +1,14 @@
 #include "SurfaceManager.h"
 
-SurfaceManager::SurfaceManager(GLFWwindow* window, VkInstance instance)
+SurfaceManager::SurfaceManager()
+	: _surface(nullptr)
 {
 
 }
 
 SurfaceManager::~SurfaceManager()
 {
-	// How do I destroy?
-	// vkDestroySurfaceKHR(, _surface, nullptr);
+
 }
 
 void SurfaceManager::createSurface(GLFWwindow* window, VkInstance instance)
@@ -26,4 +26,9 @@ void SurfaceManager::createSurface(GLFWwindow* window, VkInstance instance)
 		throw std::runtime_error("failed to create window surface!");
 	}
 
+}
+
+void SurfaceManager::destroySurface(VkInstance instance)
+{
+	vkDestroySurfaceKHR(instance, _surface, nullptr);
 }
