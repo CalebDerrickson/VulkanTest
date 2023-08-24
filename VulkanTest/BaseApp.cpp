@@ -14,8 +14,8 @@ void BaseApp::initVulkan()
 
 	//createInstance();
 	setupDebugMessenger();
-	createSurface();
-	pickPhysicalDevice();
+	//createSurface();
+	//pickPhysicalDevice();
 	createLogicalDevice();
 	createSwapChain();
 	createImageViews();
@@ -40,30 +40,7 @@ void BaseApp::initVulkan()
 
 }
 
-void BaseApp::createSurface()
-{
-	// This might be an issue, since we're only copying 
-	// the address of the window. I don't know if the window 
-	// will update.
-	GLFWwindow* window = _windowManager.getWindow();
-	VkInstance instance = _instanceManager.getInstance();
 
- 	// App can only be used on Windows 
-	// TODO : Query for device architecture
-	// and modify as such
-	VkWin32SurfaceCreateInfoKHR createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	createInfo.hwnd = glfwGetWin32Window(window);
-	createInfo.hinstance = GetModuleHandle(nullptr);
-	
-	if (glfwCreateWindowSurface(instance, window, nullptr, &_surface) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create window surface!");
-	}
-
-	// This might mess it up
-	window = nullptr;
-	instance = nullptr;
-}
 
 void BaseApp::setupDebugMessenger()
 {
@@ -84,41 +61,11 @@ void BaseApp::setupDebugMessenger()
 	instance = nullptr;
 }
 
-void BaseApp::pickPhysicalDevice()
-{
-
-	VkInstance instance = _instanceManager.getInstance();
-	_physicalDevice = VK_NULL_HANDLE;
-
-	uint32_t deviceCount = 0;
-	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-
-	if (deviceCount == 0) {
-		throw std::runtime_error("failed to find GPUs with Vulkan support!");
-	}
-
-	std::vector<VkPhysicalDevice> devices(deviceCount);
-	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-
-	for (const VkPhysicalDevice device : devices) {
-		if (DeviceUtils::isDeviceSuitable(device, _surface)) {
-			_physicalDevice = device;
-			_msaaSamples = DeviceUtils::getMaxUsableSampleCount(_physicalDevice);
-			break;
-		}
-	}
-
-	if (_physicalDevice == VK_NULL_HANDLE) {
-		throw std::runtime_error("failed to find a suitable GPU!");
-	}
-
-	instance = nullptr;
-}
 
 void BaseApp::createLogicalDevice()
 {
 
-	QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
+	QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
 	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
@@ -158,7 +105,7 @@ void BaseApp::createLogicalDevice()
 		createInfo.enabledLayerCount = 0;
 	}
 
-	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) {
+	if (vkCreateDevice(_physicalDeviceManager.getPhysicalDevice(), &createInfo, nullptr, &_device) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create logical device!");
 	}
 
@@ -169,7 +116,7 @@ void BaseApp::createLogicalDevice()
 void BaseApp::createSwapChain() 
 {
 	GLFWwindow* window = _windowManager.getWindow();
-	SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDevice, _surface );
+	SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
 
 	VkSurfaceFormatKHR surfaceFormat = SwapChainUtils::chooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = SwapChainUtils::chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -182,7 +129,7 @@ void BaseApp::createSwapChain()
 
 	VkSwapchainCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = _surface;
+	createInfo.surface = _surfaceManager.getSurface();
 
 	createInfo.minImageCount = imageCount;
 	createInfo.imageFormat = surfaceFormat.format;
@@ -191,7 +138,7 @@ void BaseApp::createSwapChain()
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
+	QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -245,7 +192,7 @@ void BaseApp::createRenderPass()
 	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 	VkAttachmentDescription depthAttachment{};
-	depthAttachment.format = MainUtils::findDepthFormat(_physicalDevice);
+	depthAttachment.format = MainUtils::findDepthFormat(_physicalDeviceManager.getPhysicalDevice());
 	depthAttachment.samples = _msaaSamples;
 	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -300,6 +247,7 @@ void BaseApp::createRenderPass()
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
 	renderPassInfo.pDependencies = &dependency;
+
 	if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create render pass!");
 	}
@@ -503,7 +451,7 @@ void BaseApp::createFramebuffers()
 void BaseApp::createCommandPool()
 {
 
-	QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(_physicalDevice, _surface);
+	QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -522,7 +470,7 @@ void BaseApp::createColorResources()
 	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _msaaSamples,
 		colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _colorImage, _colorImageMemory, 
-		_physicalDevice, _device
+		_physicalDeviceManager.getPhysicalDevice(), _device
 	);
 
 	_colorImageView = MainUtils::createImageView(_colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, _device);
@@ -531,13 +479,13 @@ void BaseApp::createColorResources()
 void BaseApp::createDepthResources()
 {
 	
-	VkFormat depthFormat = MainUtils::findDepthFormat(_physicalDevice);
+	VkFormat depthFormat = MainUtils::findDepthFormat(_physicalDeviceManager.getPhysicalDevice());
 	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _msaaSamples,
 		depthFormat, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		_depthImage, _depthImageMemory, 
-		_physicalDevice, _device
+		_physicalDeviceManager.getPhysicalDevice(), _device
 	);
 
 
@@ -564,7 +512,7 @@ void BaseApp::createTextureImage()
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	MainUtils::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-		stagingBuffer, stagingBufferMemory, _physicalDevice, _device);
+		stagingBuffer, stagingBufferMemory, _physicalDeviceManager.getPhysicalDevice(), _device);
 
 	void* data;
 	vkMapMemory(_device, stagingBufferMemory, 0, imageSize, 0, &data);
@@ -576,7 +524,7 @@ void BaseApp::createTextureImage()
 	MainUtils::createImage(texWidth, texHeight, _mipLevels, VK_SAMPLE_COUNT_1_BIT, 
 		VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory, _physicalDevice, _device);
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory, _physicalDeviceManager.getPhysicalDevice(), _device);
 
 
 	MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, 
@@ -594,7 +542,7 @@ void BaseApp::createTextureImage()
 	vkFreeMemory(_device, _stagingBufferMemory, nullptr);
 
 	MainUtils::generateMipMaps(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, _mipLevels, 
-		_commandPool, _graphicsQueue, _device, _physicalDevice);
+		_commandPool, _graphicsQueue, _device, _physicalDeviceManager.getPhysicalDevice());
 }
 
 void BaseApp::createTextureImageView()
@@ -618,7 +566,7 @@ void BaseApp::createTextureSampler()
 
 	//Query for Anisotropy limits
 	VkPhysicalDeviceProperties properties{};
-	vkGetPhysicalDeviceProperties(_physicalDevice, &properties);
+	vkGetPhysicalDeviceProperties(_physicalDeviceManager.getPhysicalDevice(), &properties);
 	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 
 	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
@@ -684,14 +632,14 @@ void BaseApp::createVertexBuffer()
 {
 	
 	MainUtils::createVkBuffer(_vertices, _vertexBuffer, _vertexBufferMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
-		_physicalDevice, _device, _graphicsQueue, _commandPool);
+		_physicalDeviceManager.getPhysicalDevice(), _device, _graphicsQueue, _commandPool);
 }
 
 void BaseApp::createIndexBuffer()
 {
 
 	MainUtils::createVkBuffer(_indices, _indexBuffer, _indexBufferMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-		_physicalDevice, _device, _graphicsQueue, _commandPool);
+		_physicalDeviceManager.getPhysicalDevice(), _device, _graphicsQueue, _commandPool);
 }
 
 void BaseApp::createUniformBuffers()
@@ -705,7 +653,7 @@ void BaseApp::createUniformBuffers()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-			_uniformBuffers[i], _uniformBuffersMemory[i], _physicalDevice, _device);
+			_uniformBuffers[i], _uniformBuffersMemory[i], _physicalDeviceManager.getPhysicalDevice(), _device);
 
 		vkMapMemory(_device, _uniformBuffersMemory[i], 0, bufferSize, 0, &_uniformBuffersMapped[i]);
 	}
@@ -995,8 +943,8 @@ void BaseApp::cleanup()
 		DebugUtils::DestroyDebugUtilsMessengerEXT(instance, _debugMessenger, nullptr);
 	}
 
-	vkDestroySurfaceKHR(instance, _surface, nullptr);
 
+	_surfaceManager.~SurfaceManager();
 	_instanceManager.~InstanceManager();
 	_windowManager.~WindowManager();
 }

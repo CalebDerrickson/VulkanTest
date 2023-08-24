@@ -18,6 +18,8 @@
 
 #include "WindowManager.h"
 #include "InstanceManager.h"
+#include "PhysicalDeviceManager.h"
+#include "SurfaceManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -56,14 +58,14 @@ protected:
     // App can only be used on Windows 
     // TODO : Query for device architecture
     // and modify as such
-    virtual void createSurface();
+    // virtual void createSurface();
 
     // Applies any validation layers and debugging applications
     // if provided
     virtual void setupDebugMessenger();
 
     
-    virtual void pickPhysicalDevice();
+    // virtual void pickPhysicalDevice();
 
 
     virtual void createLogicalDevice();
@@ -139,11 +141,15 @@ protected:
     
     InstanceManager _instanceManager{ "HELLO VULKAN" };
    
+    SurfaceManager _surfaceManager{ _windowManager.getWindow(), _instanceManager.getInstance() };
+
+    PhysicalDeviceManager _physicalDeviceManager{_instanceManager.getInstance(), _surfaceManager.getSurface()};
     
-    VkSurfaceKHR _surface;
+    
     VkQueue _presentQueue;
     VkDebugUtilsMessengerEXT _debugMessenger;
-    VkPhysicalDevice _physicalDevice;
+    
+    
     VkDevice _device;
     VkQueue _graphicsQueue;
     VkSwapchainKHR _swapChain;

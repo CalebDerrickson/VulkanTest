@@ -1,4 +1,10 @@
 #pragma once
+
+#define GLFW_INCLUDE_VULKAN
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define VK_USE_PLATFORM_WIN32_KHR
+
+#include <vulkan/vulkan.h>
 #include <vector>
 
 extern const int MAX_FRAMES_IN_FLIGHT;
