@@ -146,25 +146,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseApp.cpp" />
+    <ClCompile Include="ColorResources.cpp" />
+    <ClCompile Include="DebugManager.cpp" />
+    <ClCompile Include="DepthResources.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="InstanceManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PhysicalDeviceManager.cpp" />
     <ClCompile Include="SurfaceManager.cpp" />
+    <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
+    <ClInclude Include="ColorResources.h" />
     <ClInclude Include="common\QueueFamilyIndices.h" />
     <ClInclude Include="common\Vertex.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="DebugManager.h" />
+    <ClInclude Include="DepthResources.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
     <ClInclude Include="InstanceManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />
     <ClInclude Include="SurfaceManager.h" />
+    <ClInclude Include="SwapChainManager.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
     <ClInclude Include="WindowManager.h" />

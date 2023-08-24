@@ -21,6 +21,8 @@
 #include "PhysicalDeviceManager.h"
 #include "SurfaceManager.h"
 #include "DeviceManager.h"
+#include "DebugManager.h"
+
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -63,7 +65,7 @@ protected:
 
     // Applies any validation layers and debugging applications
     // if provided
-    virtual void setupDebugMessenger();
+    //virtual void setupDebugMessenger();
 
     
     // virtual void pickPhysicalDevice();
@@ -139,29 +141,31 @@ protected:
     uint32_t _currentFrame;
 
     WindowManager _windowManager;
-    
+
     InstanceManager _instanceManager;
-   
+
     SurfaceManager _surfaceManager;
 
     PhysicalDeviceManager _physicalDeviceManager;
-    
+
     DeviceManager _deviceManager;
     
-    VkDebugUtilsMessengerEXT _debugMessenger;
-    
-    
+    DebugManager _debugManager;
+ 
 
     VkSwapchainKHR _swapChain;
     std::vector<VkImage> _swapChainImages;
     VkFormat _swapChainImageFormat;
     VkExtent2D _swapChainExtent;
     std::vector<VkImageView> _swapChainImageViews;
+    std::vector<VkFramebuffer> _swapChainFramebuffers;
+
+
     VkRenderPass _renderPass;
     VkDescriptorSetLayout _descriptorSetLayout;
     VkPipelineLayout _pipelineLayout;
     VkPipeline _graphicsPipeline;
-    std::vector<VkFramebuffer> _swapChainFramebuffers;
+
     VkCommandPool _commandPool;
 
     std::vector<Vertex> _vertices;

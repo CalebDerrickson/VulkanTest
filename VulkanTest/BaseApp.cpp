@@ -22,26 +22,24 @@ void BaseApp::initVulkan()
 {
 
 	_windowManager.initWindow(WIDTH, HEIGHT, "VULKAN");
-
-
 	_instanceManager.createInstance("HELLO VULKAN");
-	//createInstance();
-	setupDebugMessenger();
-	//createSurface();
-
+	if(enableValidationLayers) _debugManager.setupDebugMessenger(_instanceManager.getInstance());
 	_surfaceManager.createSurface(_windowManager.getWindow(), _instanceManager.getInstance());
-	//pickPhysicalDevice();
 	_physicalDeviceManager.pickPhysicalDevice(_instanceManager.getInstance(), _surfaceManager.getSurface());
-	//createLogicalDevice();
 	_deviceManager.createLogicalDevice(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
+	
+
 	createSwapChain();
 	createImageViews();
+
 	createRenderPass();
 	createDescriptorSetLayout();
 	createGraphicsPipeline();
+
 	createColorResources();
 	createDepthResources();
 	createFramebuffers();
+	
 	createCommandPool();
 	createTextureImage();
 	createTextureImageView();
@@ -55,27 +53,6 @@ void BaseApp::initVulkan()
 	createCommandBuffers();
 	createSyncObjects();
 
-}
-
-
-
-void BaseApp::setupDebugMessenger()
-{
-
-	if (!enableValidationLayers) return;
-	VkInstance instance = _instanceManager.getInstance();
-
-	VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	createInfo.pfnUserCallback = DebugUtils::debugCallback;
-
-	if (DebugUtils::CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS) {
-		throw std::runtime_error("failed to set up debug messenger!");
-	}
-
-	instance = nullptr;
 }
 
 
@@ -437,6 +414,7 @@ void BaseApp::createColorResources()
 {
 
 	VkFormat colorFormat = _swapChainImageFormat;
+
 	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _physicalDeviceManager.getMsaaSamples(),
 		colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _colorImage, _colorImageMemory, 
@@ -450,6 +428,7 @@ void BaseApp::createDepthResources()
 {
 	
 	VkFormat depthFormat = MainUtils::findDepthFormat(_physicalDeviceManager.getPhysicalDevice());
+
 	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _physicalDeviceManager.getMsaaSamples(),
 		depthFormat, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
@@ -457,10 +436,6 @@ void BaseApp::createDepthResources()
 		_depthImage, _depthImageMemory, 
 		_physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice()
 	);
-
-
-	//MainUtils::transitionImageLayout(_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-	//	_commandPool, _graphicsQueue, _device);
 
 	_depthImageView = MainUtils::createImageView(_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1 , _deviceManager.getDevice());
 }
@@ -909,9 +884,7 @@ void BaseApp::cleanup()
 
 	_deviceManager.destroyDevice();
 
-	if (enableValidationLayers) {
-		DebugUtils::DestroyDebugUtilsMessengerEXT(instance, _debugMessenger, nullptr);
-	}
+	if (enableValidationLayers) _debugManager.destroyDebugMessenger(_instanceManager.getInstance());
 
 	_surfaceManager.destroySurface(_instanceManager.getInstance());
 	_instanceManager.~InstanceManager();
