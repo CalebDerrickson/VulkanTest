@@ -8,8 +8,7 @@ WindowManager::WindowManager()
 
 WindowManager::~WindowManager()
 {
-	glfwDestroyWindow(_window);
-	glfwTerminate();
+
 }
 
 void WindowManager::initWindow(uint16_t width, uint16_t height, const char* windowName)
@@ -39,7 +38,11 @@ void WindowManager::initWindow(uint16_t width, uint16_t height, const char* wind
 
 }
 
-
+void WindowManager::destroyWindowAndTerminate()
+{
+	glfwDestroyWindow(_window);
+	glfwTerminate();
+}
 
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {

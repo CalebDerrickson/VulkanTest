@@ -1,12 +1,14 @@
 #include "InstanceManager.h"
 
 InstanceManager::InstanceManager()
+	: _applicationName(nullptr),
+	_instance(nullptr)
 {
 }
 
 InstanceManager::~InstanceManager()
 {
-	vkDestroyInstance(_instance, nullptr);
+
 }
 
 void InstanceManager::createInstance(const char* applicationName)
@@ -72,6 +74,11 @@ void InstanceManager::createInstance(const char* applicationName)
 	if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create instance!");
 	}
+}
+
+void InstanceManager::destroyInstance()
+{
+	vkDestroyInstance(_instance, nullptr);
 }
 
 

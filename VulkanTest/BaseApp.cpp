@@ -731,8 +731,8 @@ void BaseApp::cleanup()
 	if (enableValidationLayers) _debugManager.destroyDebugMessenger(_instanceManager.getInstance());
 
 	_surfaceManager.destroySurface(_instanceManager.getInstance());
-	_instanceManager.~InstanceManager();
-	_windowManager.~WindowManager();
+	_instanceManager.destroyInstance();
+	_windowManager.destroyWindowAndTerminate();
 }
 
 

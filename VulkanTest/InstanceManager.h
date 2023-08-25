@@ -16,6 +16,7 @@ public:
 	VkInstance getInstance() const { return _instance; }
 
 	void createInstance(const char* applicationName = "Default Instance Name");
+	void destroyInstance();
 
 private: // Private Values
 

@@ -22,6 +22,8 @@ public:
 
 	void initWindow(uint16_t width = 800, uint16_t height = 600, const char* windowName = "Default Window Name");
 
+	void destroyWindowAndTerminate();
+
 private:
 
 	

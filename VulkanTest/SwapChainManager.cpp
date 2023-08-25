@@ -148,19 +148,19 @@ void SwapChainManager::recreateSwapChain(GLFWwindow* window, VkDevice device, Vk
 void SwapChainManager::cleanupSwapChain(VkDevice device)
 {
 
-	vkDestroyImageView(device, colorResources.colorImageView, nullptr);
-	vkDestroyImage(device, colorResources.colorImage, nullptr);
-	vkFreeMemory(device, colorResources.colorImageMemory, nullptr);
-
 	vkDestroyImageView(device, depthResources.depthImageView, nullptr);
 	vkDestroyImage(device, depthResources.depthImage, nullptr);
 	vkFreeMemory(device, depthResources.depthImageMemory, nullptr);
 
-	for (VkFramebuffer framebuffer : _swapChainFramebuffers) {
+	vkDestroyImageView(device, colorResources.colorImageView, nullptr);
+	vkDestroyImage(device, colorResources.colorImage, nullptr);
+	vkFreeMemory(device, colorResources.colorImageMemory, nullptr);
+
+	for (auto framebuffer : _swapChainFramebuffers) {
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 	}
 
-	for (VkImageView imageView : _swapChainImageViews) {
+	for (auto imageView : _swapChainImageViews) {
 		vkDestroyImageView(device, imageView, nullptr);
 	}
 
