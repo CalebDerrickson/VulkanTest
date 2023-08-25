@@ -4,7 +4,8 @@
 DepthResources::DepthResources()
 	: depthImage(VK_NULL_HANDLE),
 	  depthImageMemory(VK_NULL_HANDLE),
-	  depthImageView(VK_NULL_HANDLE)
+	  depthImageView(VK_NULL_HANDLE),
+	  depthFormat(VK_FORMAT_UNDEFINED)
 {
 
 

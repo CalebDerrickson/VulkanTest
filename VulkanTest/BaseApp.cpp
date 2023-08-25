@@ -10,7 +10,7 @@ uint32_t QueueFamilyIndices::InstanceCount = 0;
 
 BaseApp::BaseApp()
 {
-	std::cout << "Creating Base Class."<<std::endl;
+
 }
 
 BaseApp::~BaseApp()
@@ -28,17 +28,23 @@ void BaseApp::initVulkan()
 	_physicalDeviceManager.pickPhysicalDevice(_instanceManager.getInstance(), _surfaceManager.getSurface());
 	_deviceManager.createLogicalDevice(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
 	
-
-	createSwapChain();
-	createImageViews();
+	_swapChainManager.createSwapChain(_windowManager.getWindow(), _physicalDeviceManager.getPhysicalDevice(), 
+		_surfaceManager.getSurface(), _deviceManager.getDevice(), _physicalDeviceManager.getMsaaSamples());
+	// createSwapChain();
+	_swapChainManager.createImageViews(_deviceManager.getDevice());
+	// createImageViews();
 
 	createRenderPass();
 	createDescriptorSetLayout();
 	createGraphicsPipeline();
 
-	createColorResources();
-	createDepthResources();
-	createFramebuffers();
+
+	
+	// createColorResources();
+	// createDepthResources();
+	
+	_swapChainManager.createFramebuffers(_deviceManager.getDevice(), _renderPass);
+	// createFramebuffers();
 	
 	createCommandPool();
 	createTextureImage();
@@ -58,76 +64,13 @@ void BaseApp::initVulkan()
 
 
 
-void BaseApp::createSwapChain() 
-{
-	GLFWwindow* window = _windowManager.getWindow();
-	SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
 
-	VkSurfaceFormatKHR surfaceFormat = SwapChainUtils::chooseSwapSurfaceFormat(swapChainSupport.formats);
-	VkPresentModeKHR presentMode = SwapChainUtils::chooseSwapPresentMode(swapChainSupport.presentModes);
-	VkExtent2D extent = SwapChainUtils::chooseSwapExtent(swapChainSupport.capabilities, window);
-
-	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
-		imageCount = swapChainSupport.capabilities.maxImageCount;
-	}
-
-	VkSwapchainCreateInfoKHR createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = _surfaceManager.getSurface();
-
-	createInfo.minImageCount = imageCount;
-	createInfo.imageFormat = surfaceFormat.format;
-	createInfo.imageColorSpace = surfaceFormat.colorSpace;
-	createInfo.imageExtent = extent;
-	createInfo.imageArrayLayers = 1;
-	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-	QueueFamilyIndices indices = CommonUtils::findQueueFamilies(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
-	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
-
-	if (indices.graphicsFamily != indices.presentFamily) {
-		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		createInfo.queueFamilyIndexCount = 2;
-		createInfo.pQueueFamilyIndices = queueFamilyIndices;
-	}
-	else {
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	}
-
-	createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	createInfo.presentMode = presentMode;
-	createInfo.clipped = VK_TRUE;
-
-	VkResult res = vkCreateSwapchainKHR(_deviceManager.getDevice(), &createInfo, nullptr, &_swapChain);
-	if (res != VK_SUCCESS) {
-		throw std::runtime_error("failed to create swap chain!");
-	}
-
-	vkGetSwapchainImagesKHR(_deviceManager.getDevice(), _swapChain, &imageCount, nullptr);
-	_swapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(_deviceManager.getDevice(), _swapChain, &imageCount, _swapChainImages.data());
-
-	_swapChainImageFormat = surfaceFormat.format;
-	_swapChainExtent = extent;
-	window = nullptr;
-}
-
-void BaseApp::createImageViews()
-{
-	_swapChainImageViews.resize(_swapChainImages.size());
-
-	for (uint32_t i = 0; i < _swapChainImages.size(); i++) {
-		_swapChainImageViews[i] = MainUtils::createImageView(_swapChainImages[i], _swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, _deviceManager.getDevice());
-	}
-}
 
 void BaseApp::createRenderPass()
 {
 
 	VkAttachmentDescription colorAttachment{};
-	colorAttachment.format = _swapChainImageFormat;
+	colorAttachment.format = _swapChainManager.getSwapChainImageFormat();
 	colorAttachment.samples = _physicalDeviceManager.getMsaaSamples();
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -147,7 +90,7 @@ void BaseApp::createRenderPass()
 	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	VkAttachmentDescription colorAttachmentResolve{};
-	colorAttachmentResolve.format = _swapChainImageFormat;
+	colorAttachmentResolve.format = _swapChainManager.getSwapChainImageFormat();
 	colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -366,35 +309,6 @@ void BaseApp::createGraphicsPipeline()
 	vkDestroyShaderModule(_deviceManager.getDevice(), vertShaderModule, nullptr);
 }
 
-void BaseApp::createFramebuffers()
-{
-
-	_swapChainFramebuffers.resize(_swapChainImageViews.size());
-
-	for (size_t i = 0; i < _swapChainImageViews.size(); i++) {
-		std::array<VkImageView, 3> attachments = {
-			_colorImageView,
-			_depthImageView,
-			_swapChainImageViews[i]
-		};
-		
-		VkFramebufferCreateInfo framebufferInfo{};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = _renderPass;
-		
-		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-		framebufferInfo.pAttachments = attachments.data();
-		framebufferInfo.width = _swapChainExtent.width;
-		framebufferInfo.height = _swapChainExtent.height;
-		framebufferInfo.layers = 1;
-
-		if (vkCreateFramebuffer(_deviceManager.getDevice(), &framebufferInfo, nullptr, &_swapChainFramebuffers[i])
-			!= VK_SUCCESS) {
-			throw std::runtime_error("failed to create framebuffer!");
-		}
-	}
-}
-
 void BaseApp::createCommandPool()
 {
 
@@ -410,35 +324,7 @@ void BaseApp::createCommandPool()
 	}
 }
 
-void BaseApp::createColorResources()
-{
 
-	VkFormat colorFormat = _swapChainImageFormat;
-
-	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _physicalDeviceManager.getMsaaSamples(),
-		colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _colorImage, _colorImageMemory, 
-		_physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice()
-	);
-
-	_colorImageView = MainUtils::createImageView(_colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, _deviceManager.getDevice());
-}
-
-void BaseApp::createDepthResources()
-{
-	
-	VkFormat depthFormat = MainUtils::findDepthFormat(_physicalDeviceManager.getPhysicalDevice());
-
-	MainUtils::createImage(_swapChainExtent.width, _swapChainExtent.height, 1, _physicalDeviceManager.getMsaaSamples(),
-		depthFormat, VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		_depthImage, _depthImageMemory, 
-		_physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice()
-	);
-
-	_depthImageView = MainUtils::createImageView(_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1 , _deviceManager.getDevice());
-}
 
 void BaseApp::createTextureImage()
 {
@@ -707,10 +593,10 @@ void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = _renderPass;
-	renderPassInfo.framebuffer = _swapChainFramebuffers[imageIndex];
+	renderPassInfo.renderPass = _renderPass; 
+	renderPassInfo.framebuffer = _swapChainManager.getSwapChainFrameBuffers()[imageIndex];
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = _swapChainExtent;
+	renderPassInfo.renderArea.extent = _swapChainManager.getSwapChainExtent();
 
 	//  the order of clearValues should be identical to the order of your attachments.
 	std::array<VkClearValue, 2> clearValues{};
@@ -728,15 +614,15 @@ void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
-		viewport.width = (float)_swapChainExtent.width;
-		viewport.height = (float)_swapChainExtent.height;
+		viewport.width = (float)_swapChainManager.getSwapChainExtent().width;
+		viewport.height = (float)_swapChainManager.getSwapChainExtent().height;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
-		scissor.extent = _swapChainExtent;
+		scissor.extent = _swapChainManager.getSwapChainExtent();
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		VkBuffer vertexBuffers[] = { _vertexBuffer };
@@ -795,57 +681,15 @@ void BaseApp::mainLoop()
 }
 
 
-void BaseApp::recreateSwapChain()
-{
-	GLFWwindow* window = _windowManager.getWindow();
-	int width = 0, height = 0;
-	glfwGetFramebufferSize(window, &width, &height);
-	while (width == 0 || height == 0) {
-		glfwGetFramebufferSize(window, &width, &height);
-		glfwWaitEvents();
-	}
-
-	vkDeviceWaitIdle(_deviceManager.getDevice());
-
-	cleanupSwapchain();
-
-	createSwapChain();
-	createImageViews();
-	createColorResources();
-	createDepthResources();
-	createFramebuffers();
-}
 
 
-
-void BaseApp::cleanupSwapchain()
-{
-
-	vkDestroyImageView(_deviceManager.getDevice(), _colorImageView, nullptr);
-	vkDestroyImage(_deviceManager.getDevice(), _colorImage, nullptr);
-	vkFreeMemory(_deviceManager.getDevice(), _colorImageMemory, nullptr);
-
-	vkDestroyImageView(_deviceManager.getDevice(), _depthImageView, nullptr);
-	vkDestroyImage(_deviceManager.getDevice(), _depthImage, nullptr);
-	vkFreeMemory(_deviceManager.getDevice(), _depthImageMemory, nullptr);
-
-	for (VkFramebuffer framebuffer : _swapChainFramebuffers) {
-		vkDestroyFramebuffer(_deviceManager.getDevice(), framebuffer, nullptr);
-	}
-
-	for (VkImageView imageView : _swapChainImageViews) {
-		vkDestroyImageView(_deviceManager.getDevice(), imageView, nullptr);
-	}
-
-	vkDestroySwapchainKHR(_deviceManager.getDevice(), _swapChain, nullptr);
-}
 
 
 void BaseApp::cleanup()
 {
 	VkInstance instance = _instanceManager.getInstance();
 	
-	cleanupSwapchain();
+	_swapChainManager.cleanupSwapChain(_deviceManager.getDevice());
 
 	vkDestroyPipeline(_deviceManager.getDevice(), _graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(_deviceManager.getDevice(), _pipelineLayout, nullptr);

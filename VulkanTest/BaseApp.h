@@ -22,7 +22,7 @@
 #include "SurfaceManager.h"
 #include "DeviceManager.h"
 #include "DebugManager.h"
-
+#include "SwapChainManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -71,13 +71,13 @@ protected:
     // virtual void pickPhysicalDevice();
 
 
-    //virtual void createLogicalDevice();
+    // virtual void createLogicalDevice();
 
 
-    virtual void createSwapChain();
+    // virtual void createSwapChain();
 
 
-    virtual void createImageViews();
+    // virtual void createImageViews();
 
     // Description of the number of framebuffer attachments we will be rendering.
     // Ie, we need to specify how many color and depth buffers there will be,
@@ -89,13 +89,13 @@ protected:
 
     virtual void createGraphicsPipeline();
 
-    virtual void createFramebuffers();
+    // virtual void createFramebuffers();
 
     virtual void createCommandPool();
 
-    virtual void createColorResources();
+    // virtual void createColorResources();
 
-    virtual void createDepthResources();
+    // virtual void createDepthResources();
 
 
     virtual void createTextureImage();
@@ -130,11 +130,11 @@ protected:
     // Recreation of the Swapchain is sometimes necessary due to 
     // changes in the window surface (resizing is an example).
     // As such, we need a way to create a new swap chain.
-    void recreateSwapChain();
+    // void recreateSwapChain();
 
     // A separate cleanup function for the swap chain is necessary to
     // ensure proper handling of the objects inside the swap chain
-    void cleanupSwapchain();
+    // void cleanupSwapchain();
 
 protected:
 
@@ -152,14 +152,7 @@ protected:
     
     DebugManager _debugManager;
  
-
-    VkSwapchainKHR _swapChain;
-    std::vector<VkImage> _swapChainImages;
-    VkFormat _swapChainImageFormat;
-    VkExtent2D _swapChainExtent;
-    std::vector<VkImageView> _swapChainImageViews;
-    std::vector<VkFramebuffer> _swapChainFramebuffers;
-
+    SwapChainManager _swapChainManager;
 
     VkRenderPass _renderPass;
     VkDescriptorSetLayout _descriptorSetLayout;
@@ -199,16 +192,6 @@ protected:
 
     VkImageView _textureImageView;
     VkSampler _textureSampler;
-
-    VkImage _depthImage;
-    VkDeviceMemory _depthImageMemory;
-    VkImageView _depthImageView;
-
-    VkImage _colorImage;
-    VkDeviceMemory _colorImageMemory;
-    VkImageView _colorImageView;
-
-
 };
 
 

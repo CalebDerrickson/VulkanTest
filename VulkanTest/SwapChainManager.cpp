@@ -17,7 +17,7 @@ SwapChainManager::~SwapChainManager()
 
 }
 
-void SwapChainManager::createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkDevice device)
+void SwapChainManager::createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkDevice device, VkSampleCountFlagBits msaaSamples)
 {
 
 	SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(physicalDevice, surface);
@@ -70,6 +70,13 @@ void SwapChainManager::createSwapChain(GLFWwindow* window, VkPhysicalDevice phys
 
 	_swapChainImageFormat = surfaceFormat.format;
 	_swapChainExtent = extent;
+
+	colorResources.createResources(_swapChainExtent.width, _swapChainExtent.height,
+		_swapChainImageFormat, physicalDevice, msaaSamples, device);
+
+	depthResources.createResources(_swapChainExtent.width, _swapChainExtent.height,
+		physicalDevice, msaaSamples, device);
+
 }
 
 void SwapChainManager::createImageViews(VkDevice device)
@@ -80,4 +87,82 @@ void SwapChainManager::createImageViews(VkDevice device)
 		_swapChainImageViews[i] = MainUtils::createImageView(_swapChainImages[i], _swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1, device);
 	}
 
+}
+
+void SwapChainManager::createFramebuffers(VkDevice device, VkRenderPass renderPass)
+{
+
+	_swapChainFramebuffers.resize(_swapChainImageViews.size());
+
+	for (size_t i = 0; i < _swapChainImageViews.size(); i++) {
+		std::array<VkImageView, 3> attachments = {
+			colorResources.colorImageView,
+			depthResources.depthImageView,
+			_swapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = renderPass;
+
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.pAttachments = attachments.data();
+		framebufferInfo.width = _swapChainExtent.width;
+		framebufferInfo.height = _swapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &_swapChainFramebuffers[i])
+			!= VK_SUCCESS) {
+			throw std::runtime_error("failed to create framebuffer!");
+		}
+	}
+}
+
+void SwapChainManager::recreateSwapChain(GLFWwindow* window, VkDevice device, VkPhysicalDevice physicalDevice, 
+	VkSurfaceKHR surface, VkSampleCountFlagBits msaaSamples, VkRenderPass renderPass)
+{
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(window, &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(device);
+
+	cleanupSwapChain(device);
+
+	createSwapChain(window, physicalDevice, surface, device, msaaSamples);
+	createImageViews(device);
+
+	colorResources.createResources(_swapChainExtent.width, _swapChainExtent.height,
+		_swapChainImageFormat, physicalDevice, msaaSamples, device);
+
+	depthResources.createResources(_swapChainExtent.width, _swapChainExtent.height,
+		physicalDevice, msaaSamples, device);
+
+	createFramebuffers(device, renderPass);
+
+}
+
+void SwapChainManager::cleanupSwapChain(VkDevice device)
+{
+
+	vkDestroyImageView(device, colorResources.colorImageView, nullptr);
+	vkDestroyImage(device, colorResources.colorImage, nullptr);
+	vkFreeMemory(device, colorResources.colorImageMemory, nullptr);
+
+	vkDestroyImageView(device, depthResources.depthImageView, nullptr);
+	vkDestroyImage(device, depthResources.depthImage, nullptr);
+	vkFreeMemory(device, depthResources.depthImageMemory, nullptr);
+
+	for (VkFramebuffer framebuffer : _swapChainFramebuffers) {
+		vkDestroyFramebuffer(device, framebuffer, nullptr);
+	}
+
+	for (VkImageView imageView : _swapChainImageViews) {
+		vkDestroyImageView(device, imageView, nullptr);
+	}
+
+	vkDestroySwapchainKHR(device, _swapChain, nullptr);
 }

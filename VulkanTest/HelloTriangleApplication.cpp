@@ -22,11 +22,13 @@ void HelloTriangleApplication::drawFrame()
 
 	uint32_t imageIndex;
 
-	VkResult result = vkAcquireNextImageKHR(_deviceManager.getDevice(), _swapChain, UINT64_MAX,
+	VkResult result = vkAcquireNextImageKHR(_deviceManager.getDevice(), _swapChainManager.getSwapChain(), UINT64_MAX,
 		_imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-		recreateSwapChain();
+		_swapChainManager.recreateSwapChain(_windowManager.getWindow(), _deviceManager.getDevice(), 
+			_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface(), 
+			_physicalDeviceManager.getMsaaSamples(), _renderPass);
 		return;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -66,7 +68,7 @@ void HelloTriangleApplication::drawFrame()
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
-	VkSwapchainKHR swapChains[] = { _swapChain };
+	VkSwapchainKHR swapChains[] = { _swapChainManager.getSwapChain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
@@ -76,7 +78,9 @@ void HelloTriangleApplication::drawFrame()
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _windowManager.getFramebufferResized()) {
 		_windowManager.setFramebufferResized(false);
-		recreateSwapChain();
+		_swapChainManager.recreateSwapChain(_windowManager.getWindow(), _deviceManager.getDevice(),
+			_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface(),
+			_physicalDeviceManager.getMsaaSamples(), _renderPass);
 	}
 	else if (result != VK_SUCCESS) {
 		throw std::runtime_error("failed to present swap chain image!");
@@ -96,7 +100,7 @@ void HelloTriangleApplication::updateUniformBuffer(uint32_t currentImage)
 	UniformBufferObject ubo{};
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), _swapChainExtent.width / (float)_swapChainExtent.height, 0.1f, 10.0f);
+	ubo.proj = glm::perspective(glm::radians(45.0f), _swapChainManager.getSwapChainExtent().width / (float)_swapChainManager.getSwapChainExtent().height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
 	memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
