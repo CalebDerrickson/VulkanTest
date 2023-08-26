@@ -23,6 +23,7 @@
 #include "DeviceManager.h"
 #include "DebugManager.h"
 #include "SwapChainManager.h"
+#include "RenderPassManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -52,38 +53,9 @@ public:
 
 protected:
 
-    // Initializes Vulkan, 
-    // I.e. runs all the commands
-    // below in order
     virtual void initVulkan();
 
 
-    // App can only be used on Windows 
-    // TODO : Query for device architecture
-    // and modify as such
-    // virtual void createSurface();
-
-    // Applies any validation layers and debugging applications
-    // if provided
-    //virtual void setupDebugMessenger();
-
-    
-    // virtual void pickPhysicalDevice();
-
-
-    // virtual void createLogicalDevice();
-
-
-    // virtual void createSwapChain();
-
-
-    // virtual void createImageViews();
-
-    // Description of the number of framebuffer attachments we will be rendering.
-    // Ie, we need to specify how many color and depth buffers there will be,
-    // how many samples to use for each of them, 
-    // and how their contents should be handled throughout the rendering operations.
-    virtual void createRenderPass();
 
     virtual void createDescriptorSetLayout();
 
@@ -154,8 +126,10 @@ protected:
  
     SwapChainManager _swapChainManager;
 
-    VkRenderPass _renderPass;
+    RenderPassManager _renderPassManager;
+
     VkDescriptorSetLayout _descriptorSetLayout;
+    
     VkPipelineLayout _pipelineLayout;
     VkPipeline _graphicsPipeline;
 

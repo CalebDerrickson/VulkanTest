@@ -26,3 +26,11 @@ const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 	//Enable Best Practices vaildation in the future
 };
+
+#define renderPass() _renderPassManager.getRenderPass()
+#define swapChain() _swapChainManager.getSwapChain()
+#define surface() _surfaceManager.getSurface()
+#define window() _windowManager.getWindow()
+#define instance() _instanceManager.getInstance()
+#define physicalDevice() _physicalDeviceManager.getPhysicalDevice()
+#define device() _deviceManager.getDevice()

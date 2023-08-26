@@ -158,14 +158,14 @@ void SwapChainManager::cleanupSwapChain(VkDevice device)
 	vkFreeMemory(device, colorResources.colorImageMemory, nullptr);
 
 	
-	for (auto framebuffer : _swapChainFramebuffers) {
+	for (VkFramebuffer framebuffer : _swapChainFramebuffers) {
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 	}
 
-	for (auto imageView : _swapChainImageViews) {
+	for (VkImageView imageView : _swapChainImageViews) {
 		vkDestroyImageView(device, imageView, nullptr);
 	}
 
-
 	vkDestroySwapchainKHR(device, _swapChain, nullptr);
 }
+

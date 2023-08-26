@@ -4,6 +4,8 @@
 #include "ColorResources.h"
 #include "DepthResources.h"
 
+//#define swapChainImages() _swapChainManager.getSwapChainImages()
+
 class SwapChainManager
 {
 public:
@@ -43,6 +45,7 @@ private:
     VkSwapchainKHR _swapChain;
     VkFormat _swapChainImageFormat;
     VkExtent2D _swapChainExtent;
+    
     std::vector<VkImage> _swapChainImages;
     std::vector<VkImageView> _swapChainImageViews;
 

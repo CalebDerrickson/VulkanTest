@@ -154,6 +154,7 @@
     <ClCompile Include="InstanceManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PhysicalDeviceManager.cpp" />
+    <ClCompile Include="RenderPassManager.cpp" />
     <ClCompile Include="SurfaceManager.cpp" />
     <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="HelloTriangleApplication.h" />
     <ClInclude Include="InstanceManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />
+    <ClInclude Include="RenderPassManager.h" />
     <ClInclude Include="SurfaceManager.h" />
     <ClInclude Include="SwapChainManager.h" />
     <ClInclude Include="Utils.h" />

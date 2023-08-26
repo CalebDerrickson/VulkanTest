@@ -23,22 +23,24 @@ void BaseApp::initVulkan()
 
 	_windowManager.initWindow(WIDTH, HEIGHT, "VULKAN");
 	_instanceManager.createInstance("HELLO VULKAN");
-	if(enableValidationLayers) _debugManager.setupDebugMessenger(_instanceManager.getInstance());
-	_surfaceManager.createSurface(_windowManager.getWindow(), _instanceManager.getInstance());
-	_physicalDeviceManager.pickPhysicalDevice(_instanceManager.getInstance(), _surfaceManager.getSurface());
-	_deviceManager.createLogicalDevice(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
+	if(enableValidationLayers) _debugManager.setupDebugMessenger(instance());
+	_surfaceManager.createSurface(window(), instance());
+	_physicalDeviceManager.pickPhysicalDevice(instance(), surface());
+	_deviceManager.createLogicalDevice(physicalDevice(), surface());
 	
-	_swapChainManager.createSwapChain(_windowManager.getWindow(), _physicalDeviceManager.getPhysicalDevice(), 
-		_surfaceManager.getSurface(), _deviceManager.getDevice(), _physicalDeviceManager.getMsaaSamples());
+	_swapChainManager.createSwapChain(window(), physicalDevice(), 
+		surface(), device(), _physicalDeviceManager.getMsaaSamples());
 
-	_swapChainManager.createImageViews(_deviceManager.getDevice());
+	_swapChainManager.createImageViews(device());
 
 
-	createRenderPass();
+	_renderPassManager.createRenderPass(device(), physicalDevice(), 
+		_swapChainManager.getSwapChainImageFormat(), _physicalDeviceManager.getMsaaSamples());
+	
 	createDescriptorSetLayout();
 	createGraphicsPipeline();
 	
-	_swapChainManager.createFramebuffers(_deviceManager.getDevice(), _renderPass);
+	_swapChainManager.createFramebuffers(device(), renderPass());
 
 	createCommandPool();
 	createTextureImage();
@@ -56,86 +58,6 @@ void BaseApp::initVulkan()
 }
 
 
-
-
-
-
-void BaseApp::createRenderPass()
-{
-
-	VkAttachmentDescription colorAttachment{};
-	colorAttachment.format = _swapChainManager.getSwapChainImageFormat();
-	colorAttachment.samples = _physicalDeviceManager.getMsaaSamples();
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentDescription depthAttachment{};
-	depthAttachment.format = MainUtils::findDepthFormat(_physicalDeviceManager.getPhysicalDevice());
-	depthAttachment.samples = _physicalDeviceManager.getMsaaSamples();
-	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentDescription colorAttachmentResolve{};
-	colorAttachmentResolve.format = _swapChainManager.getSwapChainImageFormat();
-	colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-	VkAttachmentReference colorAttachmentRef{};
-	colorAttachmentRef.attachment = 0;
-	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentReference depthAttachmentRef{};
-	depthAttachmentRef.attachment = 1;
-	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentReference colorAttachmentResolveRef{};
-	colorAttachmentResolveRef.attachment = 2;
-	colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subpass{};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.colorAttachmentCount = 1;
-	subpass.pColorAttachments = &colorAttachmentRef;
-	subpass.pDepthStencilAttachment = &depthAttachmentRef;
-	subpass.pResolveAttachments = &colorAttachmentResolveRef;
-
-	VkSubpassDependency dependency{};
-	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass = 0;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	dependency.srcAccessMask = 0;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-	std::array<VkAttachmentDescription, 3> attachments = { colorAttachment, depthAttachment, colorAttachmentResolve };
-	VkRenderPassCreateInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-	renderPassInfo.pAttachments = attachments.data();
-	renderPassInfo.subpassCount = 1;
-	renderPassInfo.pSubpasses = &subpass;
-	renderPassInfo.dependencyCount = 1;
-	renderPassInfo.pDependencies = &dependency;
-
-	if (vkCreateRenderPass(_deviceManager.getDevice(), &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create render pass!");
-	}
-
-
-}
 
 void BaseApp::createDescriptorSetLayout() 
 {
@@ -159,7 +81,7 @@ void BaseApp::createDescriptorSetLayout()
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 	layoutInfo.pBindings = bindings.data();
 
-	if (vkCreateDescriptorSetLayout(_deviceManager.getDevice(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) {
+	if (vkCreateDescriptorSetLayout(device(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
 }
@@ -170,7 +92,7 @@ void BaseApp::createGraphicsPipeline()
 	auto vertShaderCode = CommonUtils::readFile("shaders/vert.spv");
 	auto fragShaderCode = CommonUtils::readFile("shaders/frag.spv");
 
-	VkDevice device = _deviceManager.getDevice();
+	VkDevice device = device();
 
 	VkShaderModule vertShaderModule = ShaderUtils::createShaderModule(vertShaderCode, device);
 	VkShaderModule fragShaderModule = ShaderUtils::createShaderModule(fragShaderCode, device);
@@ -272,7 +194,7 @@ void BaseApp::createGraphicsPipeline()
 	pipelineLayoutInfo.pSetLayouts = &_descriptorSetLayout;
 
 
-	if (vkCreatePipelineLayout(_deviceManager.getDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
+	if (vkCreatePipelineLayout(device(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
 
@@ -289,31 +211,31 @@ void BaseApp::createGraphicsPipeline()
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.pDynamicState = &dynamicState;
 	pipelineInfo.layout = _pipelineLayout;
-	pipelineInfo.renderPass = _renderPass;
+	pipelineInfo.renderPass = renderPass();
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
-	if (vkCreateGraphicsPipelines(_deviceManager.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline)
+	if (vkCreateGraphicsPipelines(device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline)
 		!= VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 
-	vkDestroyShaderModule(_deviceManager.getDevice(), fragShaderModule, nullptr);
-	vkDestroyShaderModule(_deviceManager.getDevice(), vertShaderModule, nullptr);
+	vkDestroyShaderModule(device(), fragShaderModule, nullptr);
+	vkDestroyShaderModule(device(), vertShaderModule, nullptr);
 }
 
 void BaseApp::createCommandPool()
 {
 
-	QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface());
+	QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(physicalDevice(), surface());
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-	if (vkCreateCommandPool(_deviceManager.getDevice(), &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
+	if (vkCreateCommandPool(device(), &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create command pool!");
 	}
 }
@@ -337,43 +259,43 @@ void BaseApp::createTextureImage()
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	MainUtils::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-		stagingBuffer, stagingBufferMemory, _physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice());
+		stagingBuffer, stagingBufferMemory, physicalDevice(), device());
 
 	void* data;
-	vkMapMemory(_deviceManager.getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(device(), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
-	vkUnmapMemory(_deviceManager.getDevice(), stagingBufferMemory);
+	vkUnmapMemory(device(), stagingBufferMemory);
 
 	stbi_image_free(pixels);
 
 	MainUtils::createImage(texWidth, texHeight, _mipLevels, VK_SAMPLE_COUNT_1_BIT, 
 		VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory, _physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice());
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory, physicalDevice(), device());
 
 
 	MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, 
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, _mipLevels,
-		_commandPool, _deviceManager.getGraphicsQueue(), _deviceManager.getDevice());
+		_commandPool, _deviceManager.getGraphicsQueue(), device());
 	
 	MainUtils::copyBufferToImage(stagingBuffer, _textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 
-		_commandPool, _deviceManager.getGraphicsQueue(), _deviceManager.getDevice());
+		_commandPool, _deviceManager.getGraphicsQueue(), device());
 
 	// MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 	// _mipLevels, _commandPool, _graphicsQueue, _device);
 	// transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
 
-	vkDestroyBuffer(_deviceManager.getDevice(), _stagingBuffer, nullptr);
-	vkFreeMemory(_deviceManager.getDevice(), _stagingBufferMemory, nullptr);
+	vkDestroyBuffer(device(), _stagingBuffer, nullptr);
+	vkFreeMemory(device(), _stagingBufferMemory, nullptr);
 
 	MainUtils::generateMipMaps(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, _mipLevels, 
-		_commandPool, _deviceManager.getGraphicsQueue(), _deviceManager.getDevice(), _physicalDeviceManager.getPhysicalDevice());
+		_commandPool, _deviceManager.getGraphicsQueue(), device(), physicalDevice());
 }
 
 void BaseApp::createTextureImageView()
 {
 
-	_textureImageView = MainUtils::createImageView(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, _mipLevels, _deviceManager.getDevice());
+	_textureImageView = MainUtils::createImageView(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, _mipLevels, device());
 }
 
 
@@ -391,7 +313,7 @@ void BaseApp::createTextureSampler()
 
 	//Query for Anisotropy limits
 	VkPhysicalDeviceProperties properties{};
-	vkGetPhysicalDeviceProperties(_physicalDeviceManager.getPhysicalDevice(), &properties);
+	vkGetPhysicalDeviceProperties(physicalDevice(), &properties);
 	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 
 	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
@@ -403,7 +325,7 @@ void BaseApp::createTextureSampler()
 	samplerInfo.maxLod = static_cast<float>(_mipLevels);
 	samplerInfo.mipLodBias = 0.0f;
 
-	if (vkCreateSampler(_deviceManager.getDevice(), &samplerInfo, nullptr, &_textureSampler) != VK_SUCCESS) {
+	if (vkCreateSampler(device(), &samplerInfo, nullptr, &_textureSampler) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create texture sampler!");
 	}
 
@@ -457,14 +379,14 @@ void BaseApp::createVertexBuffer()
 {
 	
 	MainUtils::createVkBuffer(_vertices, _vertexBuffer, _vertexBufferMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
-		_physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice(), _deviceManager.getGraphicsQueue(), _commandPool);
+		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), _commandPool);
 }
 
 void BaseApp::createIndexBuffer()
 {
 
 	MainUtils::createVkBuffer(_indices, _indexBuffer, _indexBufferMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-		_physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice(), _deviceManager.getGraphicsQueue(), _commandPool);
+		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), _commandPool);
 }
 
 void BaseApp::createUniformBuffers()
@@ -478,9 +400,9 @@ void BaseApp::createUniformBuffers()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		MainUtils::createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-			_uniformBuffers[i], _uniformBuffersMemory[i], _physicalDeviceManager.getPhysicalDevice(), _deviceManager.getDevice());
+			_uniformBuffers[i], _uniformBuffersMemory[i], physicalDevice(), device());
 
-		vkMapMemory(_deviceManager.getDevice(), _uniformBuffersMemory[i], 0, bufferSize, 0, &_uniformBuffersMapped[i]);
+		vkMapMemory(device(), _uniformBuffersMemory[i], 0, bufferSize, 0, &_uniformBuffersMapped[i]);
 	}
 
 
@@ -501,7 +423,7 @@ void BaseApp::createDescriptorPool()
 	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-	if (vkCreateDescriptorPool(_deviceManager.getDevice(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) {
+	if (vkCreateDescriptorPool(device(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
 
@@ -518,7 +440,7 @@ void BaseApp::createDescriptorSets()
 	allocInfo.pSetLayouts = layouts.data();
 
 	_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-	if (vkAllocateDescriptorSets(_deviceManager.getDevice(), &allocInfo, _descriptorSets.data()) != VK_SUCCESS) {
+	if (vkAllocateDescriptorSets(device(), &allocInfo, _descriptorSets.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 
@@ -552,7 +474,7 @@ void BaseApp::createDescriptorSets()
 		descriptorWrites[1].descriptorCount = 1;
 		descriptorWrites[1].pImageInfo = &imageInfo;
 
-		vkUpdateDescriptorSets(_deviceManager.getDevice(), static_cast<uint32_t>(descriptorWrites.size()),
+		vkUpdateDescriptorSets(device(), static_cast<uint32_t>(descriptorWrites.size()),
 			descriptorWrites.data(), 0, nullptr);
 	}
 }
@@ -567,7 +489,7 @@ void BaseApp::createCommandBuffers()
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = (uint32_t) _commandBuffers.size();
 
-	if (vkAllocateCommandBuffers(_deviceManager.getDevice(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
+	if (vkAllocateCommandBuffers(device(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 
@@ -587,7 +509,7 @@ void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = _renderPass; 
+	renderPassInfo.renderPass = renderPass(); 
 	renderPassInfo.framebuffer = _swapChainManager.getSwapChainFrameBuffers()[imageIndex];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = _swapChainManager.getSwapChainExtent();
@@ -653,9 +575,9 @@ void BaseApp::createSyncObjects()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
-		if (vkCreateSemaphore(_deviceManager.getDevice(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(_deviceManager.getDevice(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-			vkCreateFence(_deviceManager.getDevice(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS) {
+		if (vkCreateSemaphore(device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(device(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS) {
 
 			throw std::runtime_error("failed to create semaphores!");
 		}
@@ -665,13 +587,13 @@ void BaseApp::createSyncObjects()
 
 void BaseApp::mainLoop()
 {
-	GLFWwindow* window = _windowManager.getWindow();
+	GLFWwindow* window = window();
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 	}
 
 	window = nullptr;
-	vkDeviceWaitIdle(_deviceManager.getDevice());
+	vkDeviceWaitIdle(device());
 }
 
 
@@ -681,50 +603,49 @@ void BaseApp::mainLoop()
 
 void BaseApp::cleanup()
 {
-	VkInstance instance = _instanceManager.getInstance();
 	
-	_swapChainManager.cleanupSwapChain(_deviceManager.getDevice());
+	_swapChainManager.cleanupSwapChain(device());
 
-	vkDestroyPipeline(_deviceManager.getDevice(), _graphicsPipeline, nullptr);
-	vkDestroyPipelineLayout(_deviceManager.getDevice(), _pipelineLayout, nullptr);
-	vkDestroyRenderPass(_deviceManager.getDevice(), _renderPass, nullptr);
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroyBuffer(_deviceManager.getDevice(), _uniformBuffers[i], nullptr);
-		vkFreeMemory(_deviceManager.getDevice(), _uniformBuffersMemory[i], nullptr);
-	}
-
-	vkDestroyDescriptorPool(_deviceManager.getDevice(), _descriptorPool, nullptr);
-
-	vkDestroySampler(_deviceManager.getDevice(), _textureSampler, nullptr);
-	vkDestroyImageView(_deviceManager.getDevice(), _textureImageView, nullptr);
-
-	vkDestroyImage(_deviceManager.getDevice(), _textureImage, nullptr);
-	vkFreeMemory(_deviceManager.getDevice(), _textureImageMemory, nullptr);
-
-	vkDestroyDescriptorSetLayout(_deviceManager.getDevice(), _descriptorSetLayout, nullptr);
-
-	vkDestroyBuffer(_deviceManager.getDevice(), _indexBuffer, nullptr);
-	vkFreeMemory(_deviceManager.getDevice(), _indexBufferMemory, nullptr);
-
-	vkDestroyBuffer(_deviceManager.getDevice(), _vertexBuffer, nullptr);
-	vkFreeMemory(_deviceManager.getDevice(), _vertexBufferMemory, nullptr);
-
-
+	vkDestroyPipeline(device(), _graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(device(), _pipelineLayout, nullptr);
+	_renderPassManager.destroyRenderPass(device());
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroySemaphore(_deviceManager.getDevice(), _renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(_deviceManager.getDevice(), _imageAvailableSemaphores[i], nullptr);
-		vkDestroyFence(_deviceManager.getDevice(), _inFlightFences[i], nullptr);
+		vkDestroyBuffer(device(), _uniformBuffers[i], nullptr);
+		vkFreeMemory(device(), _uniformBuffersMemory[i], nullptr);
 	}
 
-	vkDestroyCommandPool(_deviceManager.getDevice(), _commandPool, nullptr);
+	vkDestroyDescriptorPool(device(), _descriptorPool, nullptr);
+
+	vkDestroySampler(device(), _textureSampler, nullptr);
+	vkDestroyImageView(device(), _textureImageView, nullptr);
+
+	vkDestroyImage(device(), _textureImage, nullptr);
+	vkFreeMemory(device(), _textureImageMemory, nullptr);
+
+	vkDestroyDescriptorSetLayout(device(), _descriptorSetLayout, nullptr);
+
+	vkDestroyBuffer(device(), _indexBuffer, nullptr);
+	vkFreeMemory(device(), _indexBufferMemory, nullptr);
+
+	vkDestroyBuffer(device(), _vertexBuffer, nullptr);
+	vkFreeMemory(device(), _vertexBufferMemory, nullptr);
+
+
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(device(), _renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(device(), _imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(device(), _inFlightFences[i], nullptr);
+	}
+
+	vkDestroyCommandPool(device(), _commandPool, nullptr);
 
 	_deviceManager.destroyDevice();
 
-	if (enableValidationLayers) _debugManager.destroyDebugMessenger(_instanceManager.getInstance());
+	if (enableValidationLayers) _debugManager.destroyDebugMessenger(instance());
 
-	_surfaceManager.destroySurface(_instanceManager.getInstance());
+	_surfaceManager.destroySurface(instance());
 	_instanceManager.destroyInstance();
 	_windowManager.destroyWindowAndTerminate();
 }

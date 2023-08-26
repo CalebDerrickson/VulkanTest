@@ -2,7 +2,7 @@
 
 void HelloTriangleApplication::mainLoop() 
 {
-	GLFWwindow* window = _windowManager.getWindow();
+	GLFWwindow* window = window();
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		
@@ -11,24 +11,24 @@ void HelloTriangleApplication::mainLoop()
 	}
 
 	window = nullptr;
-	vkDeviceWaitIdle(_deviceManager.getDevice());
+	vkDeviceWaitIdle(device());
 }
 
 void HelloTriangleApplication::drawFrame()
 {
 
-	vkWaitForFences(_deviceManager.getDevice(), 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
+	vkWaitForFences(device(), 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 	
 
 	uint32_t imageIndex;
 
-	VkResult result = vkAcquireNextImageKHR(_deviceManager.getDevice(), _swapChainManager.getSwapChain(), UINT64_MAX,
+	VkResult result = vkAcquireNextImageKHR(device(), swapChain(), UINT64_MAX,
 		_imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-		_swapChainManager.recreateSwapChain(_windowManager.getWindow(), _deviceManager.getDevice(), 
-			_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface(), 
-			_physicalDeviceManager.getMsaaSamples(), _renderPass);
+		_swapChainManager.recreateSwapChain(window(), device(), 
+			physicalDevice(), surface(), 
+			_physicalDeviceManager.getMsaaSamples(), renderPass());
 		return;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -36,7 +36,7 @@ void HelloTriangleApplication::drawFrame()
 	}
 
 	// Only reset the fence if we are submitting work
-	vkResetFences(_deviceManager.getDevice(), 1, &_inFlightFences[_currentFrame]);
+	vkResetFences(device(), 1, &_inFlightFences[_currentFrame]);
 
 	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
 	recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
@@ -68,7 +68,7 @@ void HelloTriangleApplication::drawFrame()
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
-	VkSwapchainKHR swapChains[] = { _swapChainManager.getSwapChain() };
+	VkSwapchainKHR swapChains[] = { swapChain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
@@ -78,9 +78,9 @@ void HelloTriangleApplication::drawFrame()
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _windowManager.getFramebufferResized()) {
 		_windowManager.setFramebufferResized(false);
-		_swapChainManager.recreateSwapChain(_windowManager.getWindow(), _deviceManager.getDevice(),
-			_physicalDeviceManager.getPhysicalDevice(), _surfaceManager.getSurface(),
-			_physicalDeviceManager.getMsaaSamples(), _renderPass);
+		_swapChainManager.recreateSwapChain(window(), device(),
+			physicalDevice(), surface(),
+			_physicalDeviceManager.getMsaaSamples(), renderPass());
 	}
 	else if (result != VK_SUCCESS) {
 		throw std::runtime_error("failed to present swap chain image!");
