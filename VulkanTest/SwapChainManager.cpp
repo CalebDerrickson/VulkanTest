@@ -19,9 +19,10 @@ SwapChainManager::~SwapChainManager()
 
 void SwapChainManager::createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkDevice device, VkSampleCountFlagBits msaaSamples)
 {
-
-	SwapChainSupportDetails swapChainSupport = SwapChainUtils::querySwapChainSupport(physicalDevice, surface);
-
+	
+	
+	SwapChainSupportDetails	swapChainSupport = SwapChainUtils::querySwapChainSupport(physicalDevice, surface);
+	
 	VkSurfaceFormatKHR surfaceFormat = SwapChainUtils::chooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = SwapChainUtils::chooseSwapPresentMode(swapChainSupport.presentModes);
 	VkExtent2D extent = SwapChainUtils::chooseSwapExtent(swapChainSupport.capabilities, window);
@@ -156,6 +157,7 @@ void SwapChainManager::cleanupSwapChain(VkDevice device)
 	vkDestroyImage(device, colorResources.colorImage, nullptr);
 	vkFreeMemory(device, colorResources.colorImageMemory, nullptr);
 
+	
 	for (auto framebuffer : _swapChainFramebuffers) {
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 	}
@@ -163,6 +165,7 @@ void SwapChainManager::cleanupSwapChain(VkDevice device)
 	for (auto imageView : _swapChainImageViews) {
 		vkDestroyImageView(device, imageView, nullptr);
 	}
+
 
 	vkDestroySwapchainKHR(device, _swapChain, nullptr);
 }

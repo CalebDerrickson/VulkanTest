@@ -37,11 +37,13 @@ public:
 
     inline std::vector<VkFramebuffer> getSwapChainFrameBuffers() const noexcept{ return _swapChainFramebuffers; }
 
+    
+
 private:
     VkSwapchainKHR _swapChain;
-    std::vector<VkImage> _swapChainImages;
     VkFormat _swapChainImageFormat;
     VkExtent2D _swapChainExtent;
+    std::vector<VkImage> _swapChainImages;
     std::vector<VkImageView> _swapChainImageViews;
 
     ColorResources colorResources;

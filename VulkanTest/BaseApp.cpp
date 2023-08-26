@@ -30,22 +30,16 @@ void BaseApp::initVulkan()
 	
 	_swapChainManager.createSwapChain(_windowManager.getWindow(), _physicalDeviceManager.getPhysicalDevice(), 
 		_surfaceManager.getSurface(), _deviceManager.getDevice(), _physicalDeviceManager.getMsaaSamples());
-	// createSwapChain();
+
 	_swapChainManager.createImageViews(_deviceManager.getDevice());
-	// createImageViews();
+
 
 	createRenderPass();
 	createDescriptorSetLayout();
 	createGraphicsPipeline();
-
-
-	
-	// createColorResources();
-	// createDepthResources();
 	
 	_swapChainManager.createFramebuffers(_deviceManager.getDevice(), _renderPass);
-	// createFramebuffers();
-	
+
 	createCommandPool();
 	createTextureImage();
 	createTextureImageView();

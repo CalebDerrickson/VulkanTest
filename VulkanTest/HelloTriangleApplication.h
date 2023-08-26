@@ -7,10 +7,7 @@ class HelloTriangleApplication : public BaseApp {
 
 public:
 
-    HelloTriangleApplication() : BaseApp() 
-    {
-        std::cout << "Creating HTA class" << std::endl;
-    }
+    HelloTriangleApplication() : BaseApp() {}
 
     ~HelloTriangleApplication(){}
 
