@@ -34,3 +34,6 @@ const std::vector<const char*> deviceExtensions = {
 #define instance() _instanceManager.getInstance()
 #define physicalDevice() _physicalDeviceManager.getPhysicalDevice()
 #define device() _deviceManager.getDevice()
+#define descriptorSetLayout() _graphicsPipelineManager.getDescriptorSetLayout()
+#define graphicsPipelineLayout() _graphicsPipelineManager.getGraphicsPipelineLayout()
+#define graphicsPipeline() _graphicsPipelineManager.getGraphicsPipeline()

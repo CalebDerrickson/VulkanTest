@@ -150,6 +150,7 @@
     <ClCompile Include="DebugManager.cpp" />
     <ClCompile Include="DepthResources.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
+    <ClCompile Include="GraphicsPipelineManager.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="InstanceManager.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="DebugManager.h" />
     <ClInclude Include="DepthResources.h" />
     <ClInclude Include="DeviceManager.h" />
+    <ClInclude Include="GraphicsPipelineManager.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
     <ClInclude Include="InstanceManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />

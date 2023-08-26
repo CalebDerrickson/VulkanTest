@@ -24,6 +24,7 @@
 #include "DebugManager.h"
 #include "SwapChainManager.h"
 #include "RenderPassManager.h"
+#include "GraphicsPipelineManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -54,12 +55,6 @@ public:
 protected:
 
     virtual void initVulkan();
-
-
-
-    virtual void createDescriptorSetLayout();
-
-    virtual void createGraphicsPipeline();
 
     // virtual void createFramebuffers();
 
@@ -128,10 +123,8 @@ protected:
 
     RenderPassManager _renderPassManager;
 
-    VkDescriptorSetLayout _descriptorSetLayout;
-    
-    VkPipelineLayout _pipelineLayout;
-    VkPipeline _graphicsPipeline;
+    GraphicsPipelineManager _graphicsPipelineManager;
+   
 
     VkCommandPool _commandPool;
 

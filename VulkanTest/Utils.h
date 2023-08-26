@@ -118,7 +118,7 @@ namespace MainUtils
 namespace ShaderUtils
 {
 
-	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice& device);
+	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice device);
 }
 
 namespace SwapChainUtils
