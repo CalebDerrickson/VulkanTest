@@ -13,7 +13,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
 
-#include <stb_image.h>
+
 #include <tiny_obj_loader.h>
 
 #include "WindowManager.h"
@@ -26,6 +26,7 @@
 #include "RenderPassManager.h"
 #include "GraphicsPipelineManager.h"
 #include "CommandPoolManager.h"
+#include "TextureManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -56,10 +57,6 @@ public:
 protected:
 
     virtual void initVulkan();
-
-    virtual void createTextureImage();
-    virtual void createTextureImageView();
-    virtual void createTextureSampler();
 
     virtual void loadModel();
     // TODO: Use only one VkBuffer to store the buffer and use offsets.
@@ -120,6 +117,8 @@ protected:
 
     CommandPoolManager _commandPoolManager;
 
+    TextureManager _textureManager;
+
     std::vector<Vertex> _vertices;
     std::vector<uint32_t> _indices;
     
@@ -142,8 +141,8 @@ protected:
     VkDescriptorPool _descriptorPool;
     std::vector<VkDescriptorSet> _descriptorSets;
 
-    VkBuffer _stagingBuffer;
-    VkDeviceMemory _stagingBufferMemory;
+    // VkBuffer _stagingBuffer;
+    // VkDeviceMemory _stagingBufferMemory;
 
     uint32_t _mipLevels;
     VkImage _textureImage;
