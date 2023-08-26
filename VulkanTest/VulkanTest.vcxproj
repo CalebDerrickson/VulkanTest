@@ -150,6 +150,7 @@
     <ClCompile Include="CommandPoolManager.cpp" />
     <ClCompile Include="DebugManager.cpp" />
     <ClCompile Include="DepthResources.cpp" />
+    <ClCompile Include="DescriptorManager.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
     <ClCompile Include="GraphicsPipelineManager.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="constants.h" />
     <ClInclude Include="DebugManager.h" />
     <ClInclude Include="DepthResources.h" />
+    <ClInclude Include="DescriptorManager.h" />
     <ClInclude Include="DeviceManager.h" />
     <ClInclude Include="GraphicsPipelineManager.h" />
     <ClInclude Include="HelloTriangleApplication.h" />

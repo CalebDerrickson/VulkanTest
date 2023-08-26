@@ -143,13 +143,6 @@ protected:
 
     // VkBuffer _stagingBuffer;
     // VkDeviceMemory _stagingBufferMemory;
-
-    uint32_t _mipLevels;
-    VkImage _textureImage;
-    VkDeviceMemory _textureImageMemory;
-
-    VkImageView _textureImageView;
-    VkSampler _textureSampler;
 };
 
 

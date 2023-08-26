@@ -183,8 +183,8 @@ void BaseApp::createDescriptorSets()
 
 		VkDescriptorImageInfo imageInfo{};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = _textureImageView;
-		imageInfo.sampler = _textureSampler;
+		imageInfo.imageView = _textureManager.textureImageView;
+		imageInfo.sampler = _textureManager.textureSampler;
 
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 		// first for ubo
