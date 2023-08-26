@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="BaseApp.cpp" />
     <ClCompile Include="ColorResources.cpp" />
+    <ClCompile Include="CommandPoolManager.cpp" />
     <ClCompile Include="DebugManager.cpp" />
     <ClCompile Include="DepthResources.cpp" />
     <ClCompile Include="DeviceManager.cpp" />
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
     <ClInclude Include="ColorResources.h" />
+    <ClInclude Include="CommandPoolManager.h" />
     <ClInclude Include="common\QueueFamilyIndices.h" />
     <ClInclude Include="common\Vertex.h" />
     <ClInclude Include="constants.h" />

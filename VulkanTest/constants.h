@@ -37,3 +37,4 @@ const std::vector<const char*> deviceExtensions = {
 #define descriptorSetLayout() _graphicsPipelineManager.getDescriptorSetLayout()
 #define graphicsPipelineLayout() _graphicsPipelineManager.getGraphicsPipelineLayout()
 #define graphicsPipeline() _graphicsPipelineManager.getGraphicsPipeline()
+#define commandPool() _commandPoolManager.getCommandPool()

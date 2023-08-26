@@ -25,6 +25,7 @@
 #include "SwapChainManager.h"
 #include "RenderPassManager.h"
 #include "GraphicsPipelineManager.h"
+#include "CommandPoolManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -55,15 +56,6 @@ public:
 protected:
 
     virtual void initVulkan();
-
-    // virtual void createFramebuffers();
-
-    virtual void createCommandPool();
-
-    // virtual void createColorResources();
-
-    // virtual void createDepthResources();
-
 
     virtual void createTextureImage();
     virtual void createTextureImageView();
@@ -126,7 +118,7 @@ protected:
     GraphicsPipelineManager _graphicsPipelineManager;
    
 
-    VkCommandPool _commandPool;
+    CommandPoolManager _commandPoolManager;
 
     std::vector<Vertex> _vertices;
     std::vector<uint32_t> _indices;

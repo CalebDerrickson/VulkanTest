@@ -45,7 +45,7 @@ void BaseApp::initVulkan()
 	
 	_swapChainManager.createFramebuffers(device(), renderPass());
 
-	createCommandPool();
+	_commandPoolManager.createCommandPool(device(), physicalDevice(), surface());
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
@@ -60,20 +60,7 @@ void BaseApp::initVulkan()
 
 }
 
-void BaseApp::createCommandPool()
-{
 
-	QueueFamilyIndices queueFamilyIndices = CommonUtils::findQueueFamilies(physicalDevice(), surface());
-
-	VkCommandPoolCreateInfo poolInfo{};
-	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-
-	if (vkCreateCommandPool(device(), &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create command pool!");
-	}
-}
 
 
 
@@ -111,10 +98,10 @@ void BaseApp::createTextureImage()
 
 	MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, 
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, _mipLevels,
-		_commandPool, _deviceManager.getGraphicsQueue(), device());
+		commandPool(), _deviceManager.getGraphicsQueue(), device());
 	
 	MainUtils::copyBufferToImage(stagingBuffer, _textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 
-		_commandPool, _deviceManager.getGraphicsQueue(), device());
+		commandPool(), _deviceManager.getGraphicsQueue(), device());
 
 	// MainUtils::transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 	// _mipLevels, _commandPool, _graphicsQueue, _device);
@@ -124,7 +111,7 @@ void BaseApp::createTextureImage()
 	vkFreeMemory(device(), _stagingBufferMemory, nullptr);
 
 	MainUtils::generateMipMaps(_textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, _mipLevels, 
-		_commandPool, _deviceManager.getGraphicsQueue(), device(), physicalDevice());
+		commandPool(), _deviceManager.getGraphicsQueue(), device(), physicalDevice());
 }
 
 void BaseApp::createTextureImageView()
@@ -214,14 +201,14 @@ void BaseApp::createVertexBuffer()
 {
 	
 	MainUtils::createVkBuffer(_vertices, _vertexBuffer, _vertexBufferMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
-		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), _commandPool);
+		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), commandPool());
 }
 
 void BaseApp::createIndexBuffer()
 {
 
 	MainUtils::createVkBuffer(_indices, _indexBuffer, _indexBufferMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), _commandPool);
+		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), commandPool());
 }
 
 void BaseApp::createUniformBuffers()
@@ -320,7 +307,7 @@ void BaseApp::createCommandBuffers()
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = _commandPool;
+	allocInfo.commandPool = commandPool();
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = (uint32_t) _commandBuffers.size();
 
@@ -475,7 +462,7 @@ void BaseApp::cleanup()
 		vkDestroyFence(device(), _inFlightFences[i], nullptr);
 	}
 
-	vkDestroyCommandPool(device(), _commandPool, nullptr);
+	_commandPoolManager.destroyCommandPool(device());
 
 	_deviceManager.destroyDevice();
 
