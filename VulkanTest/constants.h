@@ -39,3 +39,6 @@ const std::vector<const char*> deviceExtensions = {
 #define graphicsPipeline() _graphicsPipelineManager.getGraphicsPipeline()
 #define commandPool() _commandManager.getCommandPool()
 #define commandBuffers() _commandManager.getCommandBuffers()
+#define availableSemaphores() _syncManager.getAvailableSemaphores() 
+#define finishedSemaphores() _syncManager.getFinishedSemaphores()
+#define inFlightFences() _syncManager.getInFlightFences() 

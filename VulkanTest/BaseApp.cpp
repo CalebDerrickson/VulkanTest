@@ -57,8 +57,9 @@ void BaseApp::initVulkan()
 	createUniformBuffers();
 	createDescriptorPool();
 	createDescriptorSets();
-	_commandManager.createCommandBuffers(device());
-	createSyncObjects();
+	createCommandBuffers();
+	// _commandManager.createCommandBuffers(device());
+	_syncManager.createSyncObjects(device());
 
 }
 
@@ -210,7 +211,21 @@ void BaseApp::createDescriptorSets()
 	}
 }
 
+void BaseApp::createCommandBuffers()
+{
 
+	_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = commandPool();
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)_commandBuffers.size();
+
+	if (vkAllocateCommandBuffers(device(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+}
 
 void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 {
@@ -267,31 +282,6 @@ void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 	_commandManager.endRecordCommandBuffer(commandBuffer);
 }
 
-void BaseApp::createSyncObjects()
-{
-
-	_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-
-	VkSemaphoreCreateInfo semaphoreInfo{};
-	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-	VkFenceCreateInfo fenceInfo{};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-
-		if (vkCreateSemaphore(device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-			vkCreateFence(device(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS) {
-
-			throw std::runtime_error("failed to create semaphores!");
-		}
-	}
-	
-}
 
 void BaseApp::mainLoop()
 {
@@ -338,11 +328,7 @@ void BaseApp::cleanup()
 
 
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroySemaphore(device(), _renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(device(), _imageAvailableSemaphores[i], nullptr);
-		vkDestroyFence(device(), _inFlightFences[i], nullptr);
-	}
+	_syncManager.destroySyncObjects(device());
 
 	_commandManager.destroyCommandPool(device());
 

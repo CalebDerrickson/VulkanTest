@@ -17,13 +17,13 @@ void HelloTriangleApplication::mainLoop()
 void HelloTriangleApplication::drawFrame()
 {
 
-	vkWaitForFences(device(), 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
+	vkWaitForFences(device(), 1, &inFlightFences()[_currentFrame], VK_TRUE, UINT64_MAX);
 	
 
 	uint32_t imageIndex;
 
 	VkResult result = vkAcquireNextImageKHR(device(), swapChain(), UINT64_MAX,
-		_imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
+		availableSemaphores()[_currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 		_swapChainManager.recreateSwapChain(window(), device(), 
@@ -36,29 +36,29 @@ void HelloTriangleApplication::drawFrame()
 	}
 
 	// Only reset the fence if we are submitting work
-	vkResetFences(device(), 1, &_inFlightFences[_currentFrame]);
+	vkResetFences(device(), 1, &inFlightFences()[_currentFrame]);
 
-	vkResetCommandBuffer(commandBuffers()[_currentFrame], 0);
-	recordCommandBuffer(commandBuffers()[_currentFrame], imageIndex);
+	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
+	recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
 
 	updateUniformBuffer(_currentFrame);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { _imageAvailableSemaphores[_currentFrame] };
+	VkSemaphore waitSemaphores[] = { availableSemaphores()[_currentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffers()[_currentFrame];
+	submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
 
-	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[_currentFrame] };
+	VkSemaphore signalSemaphores[] = { finishedSemaphores()[_currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(_deviceManager.getGraphicsQueue(), 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
+	if (vkQueueSubmit(_deviceManager.getGraphicsQueue(), 1, &submitInfo, inFlightFences()[_currentFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 

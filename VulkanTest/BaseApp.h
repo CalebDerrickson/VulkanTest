@@ -27,6 +27,7 @@
 #include "GraphicsPipelineManager.h"
 #include "CommandManager.h"
 #include "TextureManager.h"
+#include "SyncManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -67,9 +68,11 @@ protected:
     virtual void createDescriptorPool();
     virtual void createDescriptorSets();
 
+    virtual void createCommandBuffers();
+
     virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
-    virtual void createSyncObjects();
+    // virtual void createSyncObjects();
 
     // Main Loop of the Program
     // This should be overwritten by child classes
@@ -109,6 +112,8 @@ protected:
 
     TextureManager _textureManager;
 
+    SyncManager _syncManager;
+
     std::vector<Vertex> _vertices;
     std::vector<uint32_t> _indices;
     
@@ -119,10 +124,8 @@ protected:
     VkDeviceMemory _indexBufferMemory;
     
 
-    // std::vector<VkCommandBuffer> _commandBuffers;
-    std::vector<VkSemaphore> _imageAvailableSemaphores;
-    std::vector<VkSemaphore> _renderFinishedSemaphores;
-    std::vector<VkFence> _inFlightFences;
+    std::vector<VkCommandBuffer> _commandBuffers;
+  
 
     std::vector<VkBuffer> _uniformBuffers;
     std::vector<VkDeviceMemory> _uniformBuffersMemory;
