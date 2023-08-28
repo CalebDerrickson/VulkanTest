@@ -12,9 +12,9 @@ public:
     void createSyncObjects(VkDevice device);
     void destroySyncObjects(VkDevice device);
 
-    std::vector<VkSemaphore> getAvailableSemaphores() { return _imageAvailableSemaphores; }
-    std::vector<VkSemaphore> getFinishedSemaphores() { return _renderFinishedSemaphores; }
-    std::vector<VkFence> getInFlightFences() { return _inFlightFences; }
+    inline std::vector<VkSemaphore> getAvailableSemaphores() const noexcept { return _imageAvailableSemaphores; }
+    inline std::vector<VkSemaphore> getFinishedSemaphores() const noexcept { return _renderFinishedSemaphores; }
+    inline std::vector<VkFence> getInFlightFences() const noexcept { return _inFlightFences; }
 
 private:
 

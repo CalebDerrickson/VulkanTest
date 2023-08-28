@@ -20,8 +20,8 @@ public:
 	void endRecordCommandBuffer(VkCommandBuffer commandBuffer);
 
 	// getters
-	inline VkCommandPool getCommandPool() noexcept { return _commandPool; }
-	inline std::vector<VkCommandBuffer> getCommandBuffers() noexcept { return _commandBuffers; }
+	inline VkCommandPool getCommandPool() const noexcept { return _commandPool; }
+	inline std::vector<VkCommandBuffer> getCommandBuffers() const noexcept { return _commandBuffers; }
 
 private:
 	
