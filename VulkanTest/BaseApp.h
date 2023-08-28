@@ -25,7 +25,7 @@
 #include "SwapChainManager.h"
 #include "RenderPassManager.h"
 #include "GraphicsPipelineManager.h"
-#include "CommandPoolManager.h"
+#include "CommandManager.h"
 #include "TextureManager.h"
 
 #include <vulkan/vulkan.h>
@@ -67,8 +67,6 @@ protected:
     virtual void createDescriptorPool();
     virtual void createDescriptorSets();
 
-    virtual void createCommandBuffers();
-
     virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     virtual void createSyncObjects();
@@ -81,16 +79,6 @@ protected:
 
     // Memory Release 
     virtual void cleanup();
-
-
-    // Recreation of the Swapchain is sometimes necessary due to 
-    // changes in the window surface (resizing is an example).
-    // As such, we need a way to create a new swap chain.
-    // void recreateSwapChain();
-
-    // A separate cleanup function for the swap chain is necessary to
-    // ensure proper handling of the objects inside the swap chain
-    // void cleanupSwapchain();
 
 protected:
 
@@ -114,8 +102,10 @@ protected:
 
     GraphicsPipelineManager _graphicsPipelineManager;
    
-
-    CommandPoolManager _commandPoolManager;
+    // TODO : Move this to CommandPoolManager and move 
+    // commandbuffers in as well
+    // also rename it to just CommandManager
+    CommandManager _commandManager;
 
     TextureManager _textureManager;
 
@@ -129,7 +119,7 @@ protected:
     VkDeviceMemory _indexBufferMemory;
     
 
-    std::vector<VkCommandBuffer> _commandBuffers;
+    // std::vector<VkCommandBuffer> _commandBuffers;
     std::vector<VkSemaphore> _imageAvailableSemaphores;
     std::vector<VkSemaphore> _renderFinishedSemaphores;
     std::vector<VkFence> _inFlightFences;
@@ -141,8 +131,6 @@ protected:
     VkDescriptorPool _descriptorPool;
     std::vector<VkDescriptorSet> _descriptorSets;
 
-    // VkBuffer _stagingBuffer;
-    // VkDeviceMemory _stagingBufferMemory;
 };
 
 

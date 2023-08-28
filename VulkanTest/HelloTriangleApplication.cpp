@@ -38,8 +38,8 @@ void HelloTriangleApplication::drawFrame()
 	// Only reset the fence if we are submitting work
 	vkResetFences(device(), 1, &_inFlightFences[_currentFrame]);
 
-	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
-	recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
+	vkResetCommandBuffer(commandBuffers()[_currentFrame], 0);
+	recordCommandBuffer(commandBuffers()[_currentFrame], imageIndex);
 
 	updateUniformBuffer(_currentFrame);
 
@@ -52,7 +52,7 @@ void HelloTriangleApplication::drawFrame()
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
+	submitInfo.pCommandBuffers = &commandBuffers()[_currentFrame];
 
 	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[_currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;

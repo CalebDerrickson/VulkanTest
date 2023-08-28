@@ -45,7 +45,7 @@ void BaseApp::initVulkan()
 	
 	_swapChainManager.createFramebuffers(device(), renderPass());
 
-	_commandPoolManager.createCommandPool(device(), physicalDevice(), surface());
+	_commandManager.createCommandPool(device(), physicalDevice(), surface());
 
 	_textureManager.createTextureImage(device(), physicalDevice(), commandPool(), _deviceManager.getGraphicsQueue());
 	_textureManager.createTextureImageView(device());
@@ -57,7 +57,7 @@ void BaseApp::initVulkan()
 	createUniformBuffers();
 	createDescriptorPool();
 	createDescriptorSets();
-	createCommandBuffers();
+	_commandManager.createCommandBuffers(device());
 	createSyncObjects();
 
 }
@@ -210,34 +210,13 @@ void BaseApp::createDescriptorSets()
 	}
 }
 
-void BaseApp::createCommandBuffers()
-{
-	_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = commandPool();
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = (uint32_t) _commandBuffers.size();
-
-	if (vkAllocateCommandBuffers(device(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers!");
-	}
-
-}
 
 void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 {
 
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = 0; // Optional
-	beginInfo.pInheritanceInfo = nullptr; // Optional
-
-	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-		throw std::runtime_error("failed to begin recording command buffer!");
-	}
-
+	_commandManager.beginRecordCommandBuffer(commandBuffer);
+	
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass(); 
@@ -285,9 +264,7 @@ void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 
 	vkCmdEndRenderPass(commandBuffer);
 
-	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-		throw std::runtime_error("failed to record command buffer!");
-	}
+	_commandManager.endRecordCommandBuffer(commandBuffer);
 }
 
 void BaseApp::createSyncObjects()
@@ -367,7 +344,7 @@ void BaseApp::cleanup()
 		vkDestroyFence(device(), _inFlightFences[i], nullptr);
 	}
 
-	_commandPoolManager.destroyCommandPool(device());
+	_commandManager.destroyCommandPool(device());
 
 	_deviceManager.destroyDevice();
 

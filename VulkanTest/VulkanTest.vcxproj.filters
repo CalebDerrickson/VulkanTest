@@ -69,7 +69,7 @@
     <ClCompile Include="GraphicsPipelineManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CommandPoolManager.cpp">
+    <ClCompile Include="CommandManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
@@ -134,7 +134,7 @@
     <ClInclude Include="GraphicsPipelineManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommandPoolManager.h">
+    <ClInclude Include="CommandManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
