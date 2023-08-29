@@ -103,5 +103,5 @@ void HelloTriangleApplication::updateUniformBuffer(uint32_t currentImage)
 	ubo.proj = glm::perspective(glm::radians(45.0f), _swapChainManager.getSwapChainExtent().width / (float)_swapChainManager.getSwapChainExtent().height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
-	memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+	memcpy(_uniformBufferManager.getUniformBuffersMapped()[currentImage], &ubo, sizeof(ubo));
 }

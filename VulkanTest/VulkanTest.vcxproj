@@ -162,6 +162,7 @@
     <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="SyncManager.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="UniformBufferManager.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
@@ -185,6 +186,7 @@
     <ClInclude Include="SwapChainManager.h" />
     <ClInclude Include="SyncManager.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="UniformBufferManager.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
     <ClInclude Include="WindowManager.h" />

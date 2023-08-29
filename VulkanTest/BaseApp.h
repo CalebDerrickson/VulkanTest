@@ -28,6 +28,7 @@
 #include "CommandManager.h"
 #include "TextureManager.h"
 #include "SyncManager.h"
+#include "UniformBufferManager.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -64,7 +65,7 @@ protected:
     // Reason being is that they are continuous within memory
     virtual void createVertexBuffer();
     virtual void createIndexBuffer();
-    virtual void createUniformBuffers();
+   
     virtual void createDescriptorPool();
     virtual void createDescriptorSets();
 
@@ -126,10 +127,7 @@ protected:
 
     std::vector<VkCommandBuffer> _commandBuffers;
   
-
-    std::vector<VkBuffer> _uniformBuffers;
-    std::vector<VkDeviceMemory> _uniformBuffersMemory;
-    std::vector<void*> _uniformBuffersMapped;
+    UniformBufferManager _uniformBufferManager;
 
     VkDescriptorPool _descriptorPool;
     std::vector<VkDescriptorSet> _descriptorSets;
