@@ -28,6 +28,7 @@
 #include "CommandManager.h"
 #include "TextureManager.h"
 #include "SyncManager.h"
+#include "DescriptorManager.h"
 #include "UniformBufferManager.h"
 
 #include <vulkan/vulkan.h>
@@ -66,14 +67,10 @@ protected:
     virtual void createVertexBuffer();
     virtual void createIndexBuffer();
    
-    virtual void createDescriptorPool();
-    virtual void createDescriptorSets();
-
     virtual void createCommandBuffers();
 
     virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
-    // virtual void createSyncObjects();
 
     // Main Loop of the Program
     // This should be overwritten by child classes
@@ -106,9 +103,6 @@ protected:
 
     GraphicsPipelineManager _graphicsPipelineManager;
    
-    // TODO : Move this to CommandPoolManager and move 
-    // commandbuffers in as well
-    // also rename it to just CommandManager
     CommandManager _commandManager;
 
     TextureManager _textureManager;
@@ -126,14 +120,13 @@ protected:
     VkDeviceMemory _indexBufferMemory;
     
 
+    DescriptorManager _descriptorManager;
   
     UniformBufferManager _uniformBufferManager;
 
     //Think these are the only three that I cannot 
     // put in an external class??
     std::vector<VkCommandBuffer> _commandBuffers;
-    VkDescriptorPool _descriptorPool;
-    std::vector<VkDescriptorSet> _descriptorSets;
 
 };
 
