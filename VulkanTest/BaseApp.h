@@ -115,6 +115,7 @@ protected:
 
     SyncManager _syncManager;
 
+    //you could probably make structs out of indices and vertices
     std::vector<Vertex> _vertices;
     std::vector<uint32_t> _indices;
     
@@ -125,10 +126,12 @@ protected:
     VkDeviceMemory _indexBufferMemory;
     
 
-    std::vector<VkCommandBuffer> _commandBuffers;
   
     UniformBufferManager _uniformBufferManager;
 
+    //Think these are the only three that I cannot 
+    // put in an external class??
+    std::vector<VkCommandBuffer> _commandBuffers;
     VkDescriptorPool _descriptorPool;
     std::vector<VkDescriptorSet> _descriptorSets;
 

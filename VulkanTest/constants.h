@@ -27,6 +27,7 @@ const std::vector<const char*> deviceExtensions = {
 	//Enable Best Practices vaildation in the future
 };
 
+// defining some shortcuts since I'm lazy
 #define renderPass() _renderPassManager.getRenderPass()
 #define swapChain() _swapChainManager.getSwapChain()
 #define surface() _surfaceManager.getSurface()

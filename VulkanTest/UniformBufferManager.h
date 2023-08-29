@@ -3,6 +3,12 @@
 #include "Utils.h"
 class UniformBufferManager
 {
+	// A Uniform Buffer Object (UBO) in Vulkan C++ is a data structure you 
+	// use to pass uniform data to shaders. Think of it as a way to send 
+	// information like transformation matrices, lighting parameters, 
+	// and other constant data from your CPU to your shaders in the GPU.
+
+
 public:
 	UniformBufferManager();
 	~UniformBufferManager();
