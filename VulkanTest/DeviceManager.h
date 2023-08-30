@@ -16,9 +16,9 @@ public:
 	void createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
 	void destroyDevice();
 
-	VkDevice getDevice() { return _device; }
-	VkQueue getGraphicsQueue() { return _graphicsQueue; }
-	VkQueue getPresentQueue() { return _presentQueue; }
+	inline VkDevice getDevice() const noexcept { return _device; }
+	inline VkQueue getGraphicsQueue() const noexcept { return _graphicsQueue; }
+	inline VkQueue getPresentQueue() const noexcept { return _presentQueue; }
 
 private:
 
