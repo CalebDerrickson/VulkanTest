@@ -13,7 +13,7 @@ public:
 	InstanceManager& operator=(const InstanceManager&) = delete;
 
 	//getters
-	VkInstance getInstance() const { return _instance; }
+	inline VkInstance getInstance() const noexcept { return _instance; }
 
 	void createInstance(const char* applicationName = "Default Instance Name");
 	void destroyInstance();
