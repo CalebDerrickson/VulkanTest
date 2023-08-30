@@ -16,8 +16,8 @@ public:
 	PhysicalDeviceManager& operator=(const PhysicalDeviceManager&) = delete;
 
 	// Getters
-	VkPhysicalDevice getPhysicalDevice() { return _physicalDevice; }
-	VkSampleCountFlagBits getMsaaSamples() { return _msaaSamples; }
+	inline VkPhysicalDevice getPhysicalDevice() const noexcept { return _physicalDevice; }
+	inline VkSampleCountFlagBits getMsaaSamples() const noexcept { return _msaaSamples; }
 
 	void pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
 
