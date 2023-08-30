@@ -146,21 +146,51 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseApp.cpp" />
+    <ClCompile Include="ColorResources.cpp" />
+    <ClCompile Include="CommandManager.cpp" />
+    <ClCompile Include="DebugManager.cpp" />
+    <ClCompile Include="DepthResources.cpp" />
+    <ClCompile Include="DescriptorManager.cpp" />
+    <ClCompile Include="DeviceManager.cpp" />
+    <ClCompile Include="GraphicsPipelineManager.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
+    <ClCompile Include="InstanceManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PhysicalDeviceManager.cpp" />
+    <ClCompile Include="RenderPassManager.cpp" />
+    <ClCompile Include="SurfaceManager.cpp" />
+    <ClCompile Include="SwapChainManager.cpp" />
+    <ClCompile Include="SyncManager.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="UniformBufferManager.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
-    <ClInclude Include="CommonUtils.h" />
+    <ClInclude Include="BufferObject.h" />
+    <ClInclude Include="ColorResources.h" />
+    <ClInclude Include="CommandManager.h" />
+    <ClInclude Include="common\QueueFamilyIndices.h" />
+    <ClInclude Include="common\Vertex.h" />
     <ClInclude Include="constants.h" />
-    <ClInclude Include="DebugUtils.h" />
-    <ClInclude Include="DeviceUtils.h" />
+    <ClInclude Include="DebugManager.h" />
+    <ClInclude Include="DepthResources.h" />
+    <ClInclude Include="DescriptorManager.h" />
+    <ClInclude Include="DeviceManager.h" />
+    <ClInclude Include="GraphicsPipelineManager.h" />
     <ClInclude Include="HelloTriangleApplication.h" />
-    <ClInclude Include="InstanceUtils.h" />
-    <ClInclude Include="ShaderUtils.h" />
-    <ClInclude Include="SwapChainUtils.h" />
-    <ClInclude Include="MainUtils.h" />
-    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="InstanceManager.h" />
+    <ClInclude Include="PhysicalDeviceManager.h" />
+    <ClInclude Include="RenderPassManager.h" />
+    <ClInclude Include="SurfaceManager.h" />
+    <ClInclude Include="SwapChainManager.h" />
+    <ClInclude Include="SyncManager.h" />
+    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="UniformBufferManager.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="SwapChainSupportDetails.h" />
+    <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag" />

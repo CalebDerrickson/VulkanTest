@@ -3,25 +3,29 @@
 #include "BaseApp.h"
 
 
-class HelloTriangleApplication : public BaseApp {
+class HelloTriangleApplication : public BaseApp{
 
 public:
 
-    HelloTriangleApplication(){}
+    HelloTriangleApplication() : BaseApp() {}
 
     ~HelloTriangleApplication(){}
+
+    void run()
+    {
+        initVulkan();
+        mainLoop();
+        cleanup();
+    }
 
 private: // Private Functions
 
     // Main Loop of the Program
-    void mainLoop() override;
+    void mainLoop();
 
     void drawFrame();
 
     void updateUniformBuffer(uint32_t currentImage);
-    
-
-private: // Private Values
     
 
 
