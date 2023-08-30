@@ -19,6 +19,7 @@
 #include <fstream>
 #include <algorithm>
 #include <set>
+#include <tiny_obj_loader.h>
 
 
 namespace CommonUtils
@@ -102,7 +103,7 @@ namespace MainUtils
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout,
 		uint32_t mipLevels, VkCommandPool commandPool, VkQueue graphicsQueue, VkDevice device);
 
-
+	void loadModel(std::vector<uint32_t>& indicesObject, std::vector<Vertex>& verticesObject);
 
 }
 

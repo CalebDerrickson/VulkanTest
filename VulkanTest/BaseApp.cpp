@@ -1,5 +1,5 @@
 
-#define TINYOBJLOADER_IMPLEMENTATION
+
 
 #include "BaseApp.h"
 #include "Utils.h"
@@ -53,7 +53,7 @@ void BaseApp::initVulkan()
 	_textureManager.createTextureImageView(device());
 	_textureManager.createTextureSampler(device(), physicalDevice());
 
-	loadModel();
+	MainUtils::loadModel(_indices.bufferObject, _vertices.bufferObject);
 
 	_vertices.createVkBuffer( VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, physicalDevice(), device(), 
 		_deviceManager.getGraphicsQueue(), _commandManager.getCommandPool());
@@ -69,60 +69,6 @@ void BaseApp::initVulkan()
 
 	_syncManager.createSyncObjects(device());
 
-}
-
-void BaseApp::loadModel()
-{
-
-	tinyobj::attrib_t attrib;
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-	std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-	std::string warn, err;
-
-	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH)) {
-		throw std::runtime_error(warn + err);
-	}
-
-	// combining all faces in the file into a single model
-	for (const tinyobj::shape_t& shape : shapes) {
-		for (const tinyobj::index_t& index : shape.mesh.indices) {
-			Vertex vertex{};
-
-			// attrib.vertices array is an array of float values 
-			// instead of glm::vec3, hence the 3
-			vertex.pos = {
-				attrib.vertices[3 * index.vertex_index + 0],
-				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
-			};
-
-			vertex.texCoord = {
-				       attrib.texcoords[2 * index.texcoord_index + 0],
-				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-			};
-
-			vertex.color = glm::vec3(1.0f);
-
-			//identifying the unique vertices
-			if (uniqueVertices.count(vertex) == 0) {
-				uniqueVertices[vertex] = static_cast<uint32_t>(_vertices.bufferObject.size());
-				_vertices.bufferObject.push_back(vertex);
-			}
-			_indices.bufferObject.push_back(uniqueVertices[vertex]);
-		}
-	}
-
-}
-
-void BaseApp::mainLoop()
-{
-	
-	while (!glfwWindowShouldClose(window())) {
-		glfwPollEvents();
-	}
-
-	vkDeviceWaitIdle(device());
 }
 
 void BaseApp::cleanup()

@@ -1,3 +1,4 @@
+#define TINYOBJLOADER_IMPLEMENTATION
 #include "Utils.h"
 
 namespace MainUtils
@@ -347,6 +348,52 @@ namespace MainUtils
 		endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
 
 	}
+
+
+	void loadModel(std::vector<uint32_t>& indicesObject, std::vector<Vertex>& verticesObject)
+	{
+
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+		std::string warn, err;
+
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH)) {
+			throw std::runtime_error(warn + err);
+		}
+
+		// combining all faces in the file into a single model
+		for (const tinyobj::shape_t& shape : shapes) {
+			for (const tinyobj::index_t& index : shape.mesh.indices) {
+				Vertex vertex{};
+
+				// attrib.vertices array is an array of float values 
+				// instead of glm::vec3, hence the 3
+				vertex.pos = {
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.texCoord = {
+						   attrib.texcoords[2 * index.texcoord_index + 0],
+					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+
+				vertex.color = glm::vec3(1.0f);
+
+				//identifying the unique vertices
+				if (uniqueVertices.count(vertex) == 0) {
+					uniqueVertices[vertex] = static_cast<uint32_t>(verticesObject.size());
+					verticesObject.push_back(vertex);
+				}
+				indicesObject.push_back(uniqueVertices[vertex]);
+			}
+		}
+
+	}
+
 }
 
 

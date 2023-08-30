@@ -14,7 +14,7 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 
 
-#include <tiny_obj_loader.h>
+
 
 #include "WindowManager.h"
 #include "InstanceManager.h"
@@ -46,36 +46,19 @@ public:
     
     BaseApp();
     ~BaseApp();
-    
-    void run()
-    {
-        initVulkan();
-        mainLoop();
-        cleanup();
-    }
-
+   
     static constexpr int WIDTH = 800;
     static constexpr int HEIGHT = 600;
 
-
-protected:
-
     // should initVulkan be a protected function or private?
-    virtual void initVulkan();
+    void initVulkan();
 
 
-    // To be moved to their own classes
-    virtual void loadModel();
-
-
-    // Main Loop of the Program
-    // This should be overwritten by child classes
-    virtual void mainLoop();
 
     // The Draw Frame function is done by child classes
 
     // Memory Release 
-    virtual void cleanup();
+    void cleanup();
 
 protected:
 

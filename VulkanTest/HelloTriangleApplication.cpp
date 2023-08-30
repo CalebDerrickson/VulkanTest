@@ -2,15 +2,13 @@
 
 void HelloTriangleApplication::mainLoop() 
 {
-	GLFWwindow* window = window();
-	while (!glfwWindowShouldClose(window)) {
+	while (!glfwWindowShouldClose(window())) {
 		glfwPollEvents();
 		
 		drawFrame();
 		
 	}
 
-	window = nullptr;
 	vkDeviceWaitIdle(device());
 }
 
@@ -39,7 +37,6 @@ void HelloTriangleApplication::drawFrame()
 	vkResetFences(device(), 1, &inFlightFences()[_currentFrame]);
 
 	vkResetCommandBuffer(commandBuffers()[_currentFrame], 0);
-	recordCommandBuffer(commandBuffers()[_currentFrame], imageIndex);
 	
 	_commandManager.recordCommandBuffer(_currentFrame, imageIndex, _indices, _vertices,
 		graphicsPipeline(), graphicsPipelineLayout(), swapChainFrameBuffers(),
@@ -62,8 +59,6 @@ void HelloTriangleApplication::drawFrame()
 	VkCommandBuffer currentBuffer = commandBuffers()[_currentFrame];
 	submitInfo.pCommandBuffers = &currentBuffer;
 	
-
-
 	VkSemaphore signalSemaphores[] = { finishedSemaphores()[_currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
