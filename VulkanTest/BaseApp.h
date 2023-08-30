@@ -67,10 +67,6 @@ protected:
     // To be moved to their own classes
     virtual void loadModel();
 
-    virtual void createCommandBuffers();
-
-    virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
 
     // Main Loop of the Program
     // This should be overwritten by child classes
@@ -119,10 +115,6 @@ protected:
     DescriptorManager _descriptorManager;
   
     UniformBufferManager _uniformBufferManager;
-
-    //Think this is the only one I cannot 
-    // put in an external class??
-    std::vector<VkCommandBuffer> _commandBuffers;
 
 };
 

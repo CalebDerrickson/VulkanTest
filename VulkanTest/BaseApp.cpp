@@ -64,7 +64,8 @@ void BaseApp::initVulkan()
 	_uniformBufferManager.createUniformBuffers(device(), physicalDevice());
 	_descriptorManager.createDescriptorPool(device());
 	_descriptorManager.createDescriptorSets(device(), _uniformBufferManager.getUniformBuffers(), _textureManager);
-	createCommandBuffers();
+
+	_commandManager.createCommandBuffers(device());
 
 	_syncManager.createSyncObjects(device());
 
@@ -113,78 +114,6 @@ void BaseApp::loadModel()
 	}
 
 }
-
-void BaseApp::createCommandBuffers()
-{
-
-	_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = commandPool();
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = (uint32_t)_commandBuffers.size();
-
-	if (vkAllocateCommandBuffers(device(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers!");
-	}
-}
-
-void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
-{
-
-	_commandManager.beginRecordCommandBuffer(commandBuffer);
-	
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = renderPass(); 
-	renderPassInfo.framebuffer = _swapChainManager.getSwapChainFrameBuffers()[imageIndex];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = _swapChainManager.getSwapChainExtent();
-
-	//  the order of clearValues should be identical to the order of your attachments.
-	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-	clearValues[1].depthStencil = { 1.0f, 0 };
-	
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
-
-
-	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline());
-
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)_swapChainManager.getSwapChainExtent().width;
-		viewport.height = (float)_swapChainManager.getSwapChainExtent().height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = _swapChainManager.getSwapChainExtent();
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-		VkBuffer vertexBuffers[] = { _vertices.buffer };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-		vkCmdBindIndexBuffer(commandBuffer, _indices.buffer, 0, VK_INDEX_TYPE_UINT32);
-
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			graphicsPipelineLayout(), 0, 1, &_descriptorManager.getDescriptorSets()[_currentFrame], 0, nullptr);
-
-		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(_indices.bufferObject.size()), 1, 0, 0, 0);
-
-	vkCmdEndRenderPass(commandBuffer);
-
-	_commandManager.endRecordCommandBuffer(commandBuffer);
-}
-
 
 void BaseApp::mainLoop()
 {

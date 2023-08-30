@@ -38,8 +38,12 @@ void HelloTriangleApplication::drawFrame()
 	// Only reset the fence if we are submitting work
 	vkResetFences(device(), 1, &inFlightFences()[_currentFrame]);
 
-	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
-	recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
+	vkResetCommandBuffer(commandBuffers()[_currentFrame], 0);
+	recordCommandBuffer(commandBuffers()[_currentFrame], imageIndex);
+	
+	_commandManager.recordCommandBuffer(_currentFrame, imageIndex, _indices, _vertices,
+		graphicsPipeline(), graphicsPipelineLayout(), swapChainFrameBuffers(),
+		swapChainExtent(), descriptorSets(), renderPass());
 
 	updateUniformBuffer(_currentFrame);
 
@@ -52,7 +56,13 @@ void HelloTriangleApplication::drawFrame()
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
+	
+	// Can't write set pCommandBuffers to &commandBuffers()[_currentFrame]
+	// directly, so have to do this??
+	VkCommandBuffer currentBuffer = commandBuffers()[_currentFrame];
+	submitInfo.pCommandBuffers = &currentBuffer;
+	
+
 
 	VkSemaphore signalSemaphores[] = { finishedSemaphores()[_currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
