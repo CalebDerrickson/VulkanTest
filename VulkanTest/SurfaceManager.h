@@ -19,7 +19,7 @@ public:
 	SurfaceManager& operator=(const SurfaceManager&) = delete;
 
 	//getters
-	VkSurfaceKHR getSurface() { return _surface; }
+	inline VkSurfaceKHR getSurface() const noexcept { return _surface; }
 
 	void createSurface(GLFWwindow* window, VkInstance instance);
 	void destroySurface(VkInstance instance);
