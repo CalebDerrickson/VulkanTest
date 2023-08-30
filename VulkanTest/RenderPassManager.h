@@ -13,7 +13,8 @@ public:
 	void createRenderPass(VkDevice device, VkPhysicalDevice physicalDevice, VkFormat swapChainImageformat, VkSampleCountFlagBits msaaSamples);
 	void destroyRenderPass(VkDevice device);
 
-	VkRenderPass getRenderPass() { return _renderPass; }
+	// Getters
+	inline VkRenderPass getRenderPass() const noexcept { return _renderPass; }
 
 private:
 
