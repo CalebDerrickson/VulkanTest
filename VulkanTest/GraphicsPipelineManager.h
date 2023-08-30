@@ -14,8 +14,8 @@ public:
 
 	void destroyGraphicsPipelineAndLayout(VkDevice device);
 
-	VkPipelineLayout getGraphicsPipelineLayout() { return _pipelineLayout; }
-	VkPipeline getGraphicsPipeline() { return _graphicsPipeline; }
+	inline VkPipelineLayout getGraphicsPipelineLayout() const noexcept { return _pipelineLayout; }
+	inline VkPipeline getGraphicsPipeline() const noexcept { return _graphicsPipeline; }
 
 private:
 
