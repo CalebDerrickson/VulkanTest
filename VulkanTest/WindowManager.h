@@ -17,8 +17,8 @@ public:
 	void setFramebufferResized(bool framebufferResized) { _framebufferResized = framebufferResized; }
 
 	//getters
-	GLFWwindow* getWindow() const { return _window; }
-	bool getFramebufferResized() const { return _framebufferResized; }
+	inline GLFWwindow* getWindow() const noexcept { return _window; }
+	inline bool getFramebufferResized() const noexcept{ return _framebufferResized; }
 
 	void initWindow(uint16_t width = 800, uint16_t height = 600, const char* windowName = "Default Window Name");
 
