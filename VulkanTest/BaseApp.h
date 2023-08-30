@@ -30,6 +30,7 @@
 #include "SyncManager.h"
 #include "DescriptorManager.h"
 #include "UniformBufferManager.h"
+#include "BufferObject.h"
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -59,14 +60,13 @@ public:
 
 protected:
 
+    // should initVulkan be a protected function or private?
     virtual void initVulkan();
 
+
+    // To be moved to their own classes
     virtual void loadModel();
-    // TODO: Use only one VkBuffer to store the buffer and use offsets.
-    // Reason being is that they are continuous within memory
-    virtual void createVertexBuffer();
-    virtual void createIndexBuffer();
-   
+
     virtual void createCommandBuffers();
 
     virtual void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
@@ -109,22 +109,18 @@ protected:
 
     SyncManager _syncManager;
 
-    //you could probably make structs out of indices and vertices
-    std::vector<Vertex> _vertices;
-    std::vector<uint32_t> _indices;
-    
-    VkBuffer _vertexBuffer;
-    VkDeviceMemory _vertexBufferMemory;
+    // TODO: Use only one VkBuffer to store the buffer and use offsets.
+    // Reason being is that they are continuous within memory, so 
+    // easier to access
 
-    VkBuffer _indexBuffer;
-    VkDeviceMemory _indexBufferMemory;
-    
+    BufferObject<Vertex> _vertices;
+    BufferObject<uint32_t> _indices;
 
     DescriptorManager _descriptorManager;
   
     UniformBufferManager _uniformBufferManager;
 
-    //Think these are the only three that I cannot 
+    //Think this is the only one I cannot 
     // put in an external class??
     std::vector<VkCommandBuffer> _commandBuffers;
 

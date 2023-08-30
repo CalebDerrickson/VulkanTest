@@ -127,55 +127,31 @@ namespace MainUtils
 		endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
 	}
 
-	 void createVkBuffer(std::vector<unsigned int>& vkData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usage,
-		VkPhysicalDevice physicalDevice, VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool)
-	{
-	
-		VkDeviceSize bufferSize = sizeof(vkData[0]) * vkData.size();
 
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBuffer, stagingBufferMemory, physicalDevice, device);
-
-		void* data;
-		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vkData.data(), (size_t)bufferSize);
-		vkUnmapMemory(device, stagingBufferMemory);
-
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			buffer, bufferMemory, physicalDevice, device);
-
-		copyBuffer(stagingBuffer, buffer, bufferSize, commandPool, graphicsQueue, device);
-
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
-	}
-
-	void createVkBuffer(std::vector<Vertex>& vkData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usage,
-		VkPhysicalDevice physicalDevice, VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool)
-	{
-
-		VkDeviceSize bufferSize = sizeof(vkData[0]) * vkData.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBuffer, stagingBufferMemory, physicalDevice, device);
-
-		void* data;
-		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vkData.data(), (size_t)bufferSize);
-		vkUnmapMemory(device, stagingBufferMemory);
-
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			buffer, bufferMemory, physicalDevice, device);
-
-		copyBuffer(stagingBuffer, buffer, bufferSize, commandPool, graphicsQueue, device);
-
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
-	}
+	// void createVkBuffer(std::vector<Vertex>& vkData, VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkBufferUsageFlags usage,
+	// 	VkPhysicalDevice physicalDevice, VkDevice device, VkQueue graphicsQueue, VkCommandPool commandPool)
+	// {
+	// 
+	// 	VkDeviceSize bufferSize = sizeof(vkData[0]) * vkData.size();
+	// 
+	// 	VkBuffer stagingBuffer;
+	// 	VkDeviceMemory stagingBufferMemory;
+	// 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	// 		stagingBuffer, stagingBufferMemory, physicalDevice, device);
+	// 
+	// 	void* data;
+	// 	vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	// 	memcpy(data, vkData.data(), (size_t)bufferSize);
+	// 	vkUnmapMemory(device, stagingBufferMemory);
+	// 
+	// 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	// 		buffer, bufferMemory, physicalDevice, device);
+	// 
+	// 	copyBuffer(stagingBuffer, buffer, bufferSize, commandPool, graphicsQueue, device);
+	// 
+	// 	vkDestroyBuffer(device, stagingBuffer, nullptr);
+	// 	vkFreeMemory(device, stagingBufferMemory, nullptr);
+	// }
 
 
 	bool hasStencilComponent(VkFormat format)
@@ -398,8 +374,6 @@ namespace MainUtils
 		endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
 
 	}
-
-
 }
 
 

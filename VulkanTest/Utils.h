@@ -9,6 +9,7 @@
 #include "common/SwapChainSupportDetails.h"
 #include "constants.h"
 
+
 #include <string>
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
@@ -88,16 +89,6 @@ namespace MainUtils
 		VkPhysicalDevice physicalDevice, VkDevice device);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels, VkDevice device);
 
-	// I tried using a template to combine the below two functions 
-	// and I got linker errors so I just wrote it like this
-	// 
-	// TODO : Recombine these two functions?
-	
-	void createVkBuffer(std::vector<Vertex>&, VkBuffer&, VkDeviceMemory&, VkBufferUsageFlags,
-		VkPhysicalDevice, VkDevice, VkQueue, VkCommandPool);
-
-	void createVkBuffer(std::vector<unsigned int>&, VkBuffer&, VkDeviceMemory&, VkBufferUsageFlags,
-		VkPhysicalDevice, VkDevice, VkQueue, VkCommandPool);
 
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue, VkDevice device);
 

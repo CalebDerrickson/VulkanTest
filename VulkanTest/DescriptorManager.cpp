@@ -3,8 +3,8 @@
 
 DescriptorManager::DescriptorManager()
 	: _descriptorPool(VK_NULL_HANDLE),
-	  _descriptorSets({}),
-	  _descriptorSetLayout(VK_NULL_HANDLE)
+	  _descriptorSetLayout(VK_NULL_HANDLE),
+	  _descriptorSets({})
 {
 
 

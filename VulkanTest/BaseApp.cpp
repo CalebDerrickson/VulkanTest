@@ -9,6 +9,7 @@ extern const char* TEXTURE_PATH = "textures/viking_room.png";
 uint32_t QueueFamilyIndices::InstanceCount = 0;
 
 BaseApp::BaseApp()
+	: _currentFrame(NULL)
 {
 
 }
@@ -53,8 +54,13 @@ void BaseApp::initVulkan()
 	_textureManager.createTextureSampler(device(), physicalDevice());
 
 	loadModel();
-	createVertexBuffer();
-	createIndexBuffer();
+
+	_vertices.createVkBuffer( VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, physicalDevice(), device(), 
+		_deviceManager.getGraphicsQueue(), _commandManager.getCommandPool());
+
+	_indices.createVkBuffer( VK_BUFFER_USAGE_INDEX_BUFFER_BIT, physicalDevice(), device(), 
+		_deviceManager.getGraphicsQueue(), _commandManager.getCommandPool());
+
 	_uniformBufferManager.createUniformBuffers(device(), physicalDevice());
 	_descriptorManager.createDescriptorPool(device());
 	_descriptorManager.createDescriptorSets(device(), _uniformBufferManager.getUniformBuffers(), _textureManager);
@@ -99,27 +105,13 @@ void BaseApp::loadModel()
 
 			//identifying the unique vertices
 			if (uniqueVertices.count(vertex) == 0) {
-				uniqueVertices[vertex] = static_cast<uint32_t>(_vertices.size());
-				_vertices.push_back(vertex);
+				uniqueVertices[vertex] = static_cast<uint32_t>(_vertices.bufferObject.size());
+				_vertices.bufferObject.push_back(vertex);
 			}
-			_indices.push_back(uniqueVertices[vertex]);
+			_indices.bufferObject.push_back(uniqueVertices[vertex]);
 		}
 	}
 
-}
-
-void BaseApp::createVertexBuffer() 
-{
-	
-	MainUtils::createVkBuffer(_vertices, _vertexBuffer, _vertexBufferMemory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
-		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), commandPool());
-}
-
-void BaseApp::createIndexBuffer()
-{
-
-	MainUtils::createVkBuffer(_indices, _indexBuffer, _indexBufferMemory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-		physicalDevice(), device(), _deviceManager.getGraphicsQueue(), commandPool());
 }
 
 void BaseApp::createCommandBuffers()
@@ -177,16 +169,16 @@ void BaseApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 		scissor.extent = _swapChainManager.getSwapChainExtent();
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-		VkBuffer vertexBuffers[] = { _vertexBuffer };
+		VkBuffer vertexBuffers[] = { _vertices.buffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-		vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(commandBuffer, _indices.buffer, 0, VK_INDEX_TYPE_UINT32);
 
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			graphicsPipelineLayout(), 0, 1, &_descriptorManager.getDescriptorSets()[_currentFrame], 0, nullptr);
 
-		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(_indices.size()), 1, 0, 0, 0);
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(_indices.bufferObject.size()), 1, 0, 0, 0);
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -222,13 +214,8 @@ void BaseApp::cleanup()
 	_descriptorManager.destroyDescriptorSetLayout(device());
 	
 
-	vkDestroyBuffer(device(), _indexBuffer, nullptr);
-	vkFreeMemory(device(), _indexBufferMemory, nullptr);
-
-	vkDestroyBuffer(device(), _vertexBuffer, nullptr);
-	vkFreeMemory(device(), _vertexBufferMemory, nullptr);
-
-
+	_indices.destroyBuffer(device());
+	_vertices.destroyBuffer(device());
 
 	_syncManager.destroySyncObjects(device());
 

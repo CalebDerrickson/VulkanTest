@@ -168,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
+    <ClInclude Include="BufferObject.h" />
     <ClInclude Include="ColorResources.h" />
     <ClInclude Include="CommandManager.h" />
     <ClInclude Include="common\QueueFamilyIndices.h" />
